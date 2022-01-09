@@ -1,0 +1,7 @@
+.next/
+.vscode/
+node_modules/
+
+.env
+.vercel
+src/config/words.txt
