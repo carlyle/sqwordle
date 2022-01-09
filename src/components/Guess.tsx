@@ -33,7 +33,8 @@ const Guess = ({ length, results = [], type, word = '' }: Props) => (
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
-        margin-bottom: 1em;
+        margin: 0 auto 1em auto;
+        width: 80%;
       }
 
       .guess:last-child {
@@ -89,7 +90,7 @@ const Letter = ({
 
       .incorrect {
         background-color: darkgrey;
-        color: white;
+        color: grey;
       }
 
       .present {

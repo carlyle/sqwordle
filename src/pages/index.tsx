@@ -71,7 +71,7 @@ const HomePage = ({ game }: Props) => {
     {} as Record<string, LetterResult>
   );
   const previousResults: LetterResult[][] = [];
-  let wonGame = false;
+  let gameState: 'lost' | 'playing' | 'won' = 'playing';
   for (const guess of previousGuesses) {
     const results = evaluateGuess({ guess, solution: game.solution });
     for (let index = 0; index < wordLength; index++) {
@@ -84,12 +84,15 @@ const HomePage = ({ game }: Props) => {
     previousResults.push(results);
 
     if (results.every((result) => result === LetterResult.Correct)) {
-      wonGame = true;
+      gameState = 'won';
     }
+  }
+  if (previousGuesses.length === game.maxGuesses && gameState !== 'won') {
+    gameState = 'lost';
   }
 
   const onClickBackspace =
-    !wonGame && currentGuess.length > 0
+    gameState === 'playing' && currentGuess.length > 0
       ? () => {
           setCurrentGuess((currentGuess) =>
             currentGuess.slice(0, currentGuess.length - 1)
@@ -98,25 +101,37 @@ const HomePage = ({ game }: Props) => {
       : undefined;
 
   const onClickEnter =
-    !wonGame && currentGuess.length === wordLength
+    gameState === 'playing' && currentGuess.length === wordLength
       ? () => {
+          if (!game.validWords.includes(currentGuess)) {
+            window.alert("Sorry, that's not a pokemon");
+            return;
+          }
+
           setPreviousGuesses((previousGuesses) => [
             ...previousGuesses,
             currentGuess,
           ]);
           setCurrentGuess('');
+
+          if (currentGuess === game.solution) {
+            window.alert('Congratulations!');
+            return;
+          }
         }
       : undefined;
 
   const onClickLetter =
-    !wonGame && currentGuess.length < wordLength
+    gameState === 'playing' && currentGuess.length < wordLength
       ? (letter: string) => {
           setCurrentGuess((currentGuess) => `${currentGuess}${letter}`);
         }
       : undefined;
 
   const futureGuessCount =
-    game.maxGuesses - previousGuesses.length - (wonGame ? 0 : 1);
+    game.maxGuesses -
+    previousGuesses.length -
+    (gameState === 'playing' ? 1 : 0);
 
   return (
     <>
@@ -132,7 +147,7 @@ const HomePage = ({ game }: Props) => {
           word={previousGuesses[index]}
         />
       ))}
-      {!wonGame && previousGuesses.length < game.maxGuesses && (
+      {gameState === 'playing' && previousGuesses.length < game.maxGuesses && (
         <Guess
           key="current"
           length={wordLength}

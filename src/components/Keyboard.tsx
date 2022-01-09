@@ -36,10 +36,37 @@ const Key = ({
       .key {
         flex: 1 1 auto;
         height: 2em;
-        margin-right: 1em;
+        margin-right: 0.5em;
+
+        appearance: none;
+        border: none;
+        cursor: pointer;
+      }
+      .key:disabled {
+        opacity: 0.5;
       }
       .key:last-child {
         margin-right: 0;
+      }
+
+      .correct {
+        background-color: green;
+        color: white;
+      }
+
+      .empty {
+        background-color: lightgrey;
+        color: black;
+      }
+
+      .incorrect {
+        background-color: darkgrey;
+        color: grey;
+      }
+
+      .present {
+        background-color: yellow;
+        color: black;
       }
     `}</style>
   </>
@@ -135,14 +162,12 @@ const Keyboard = ({
         ))}
       </div>
       <style jsx>{`
-        .keyboard {
-        }
-
         .row {
           display: flex;
           flex-direction: row;
           flex-wrap: nowrap;
-          margin-bottom: 1em;
+          margin: 0 auto 0.5em auto;
+          width: 90%;
         }
         .row:last-child {
           margin-bottom: 0;
