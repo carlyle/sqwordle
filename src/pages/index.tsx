@@ -118,6 +118,13 @@ const HomePage = ({ game }: Props) => {
             window.alert('Congratulations!');
             return;
           }
+
+          if (previousGuesses.length === game.maxGuesses - 1) {
+            window.alert(
+              `Sorry, it was ${game.solution.toUpperCase()}. Better luck next time!`
+            );
+            return;
+          }
         }
       : undefined;
 
