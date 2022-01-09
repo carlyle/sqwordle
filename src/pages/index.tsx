@@ -24,7 +24,7 @@ type Props = {
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
   const now = new Date();
-  const day = differenceInCalendarDays(now, START_DATE);
+  const day = differenceInCalendarDays(now, START_DATE) + 1;
 
   const { readFile } = await import('fs/promises');
   const { resolve } = await import('path');
@@ -141,30 +141,46 @@ const HomePage = ({ game }: Props) => {
     (gameState === 'playing' ? 1 : 0);
 
   return (
-    <>
+    <div className="page">
       <h1>Sqwordle #{game.day}</h1>
-      <h2>Who&apos;s that pokemon?</h2>
+      <h2>Who&apos;s that pokémon?</h2>
 
-      {previousGuesses.map((guess, index) => (
-        <Guess
-          key={`previous-${index}`}
-          length={wordLength}
-          results={evaluateGuess({ guess, solution: game.solution })}
-          type="previous"
-          word={previousGuesses[index]}
-        />
-      ))}
-      {gameState === 'playing' && previousGuesses.length < game.maxGuesses && (
-        <Guess
-          key="current"
-          length={wordLength}
-          type="current"
-          word={currentGuess}
-        />
-      )}
-      {times(futureGuessCount, (index) => (
-        <Guess key={`future-${index}`} length={wordLength} type="future" />
-      ))}
+      <div className="guesses">
+        {previousGuesses.map((guess, index) => (
+          <Guess
+            key={`previous-${index}`}
+            length={wordLength}
+            results={evaluateGuess({ guess, solution: game.solution })}
+            type="previous"
+            word={previousGuesses[index]}
+          />
+        ))}
+        {gameState === 'playing' &&
+          previousGuesses.length < game.maxGuesses && (
+            <Guess
+              key="current"
+              length={wordLength}
+              type="current"
+              word={currentGuess}
+            />
+          )}
+        {times(futureGuessCount, (index) => (
+          <Guess key={`future-${index}`} length={wordLength} type="future" />
+        ))}
+      </div>
+
+      <p className="disclaimer">
+        A Pokémon-themed take on{' '}
+        <a
+          href="https://www.powerlanguage.co.uk/wordle/"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          Wordle
+        </a>
+        .
+      </p>
+      <p className="disclaimer">Please don&apos;t sue me, Nintendo.</p>
 
       <Keyboard
         hints={hints}
@@ -172,7 +188,44 @@ const HomePage = ({ game }: Props) => {
         onClickEnter={onClickEnter}
         onClickLetter={onClickLetter}
       />
-    </>
+
+      <style jsx>{`
+        .page {
+          margin-bottom: 210px;
+        }
+
+        h1 {
+          margin: 0 0 0.25em 0;
+
+          text-align: center;
+        }
+
+        h2 {
+          margin: 0 0 1em 0;
+
+          font-size: 1.2em;
+          text-align: center;
+        }
+
+        .guesses {
+          margin: 0 0 2em 0;
+        }
+
+        .disclaimer {
+          margin: 0 auto 1em auto;
+          width: 80%;
+
+          color: darkgrey;
+          font-size: 12px;
+          text-align: center;
+        }
+
+        .disclaimer a {
+          color: rgb(89, 89, 231);
+          text-decoration: none;
+        }
+      `}</style>
+    </div>
   );
 };
 

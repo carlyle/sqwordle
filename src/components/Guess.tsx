@@ -30,11 +30,12 @@ const Guess = ({ length, results = [], type, word = '' }: Props) => (
     </div>
     <style jsx>{`
       .guess {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        margin: 0 auto 1em auto;
-        width: 80%;
+        display: grid;
+        gap: 8px;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+        margin: 0 auto 10px auto;
+        width: 90%;
       }
 
       .guess:last-child {
@@ -66,16 +67,11 @@ const Letter = ({
     </div>
     <style jsx>{`
       .letter {
-        flex: 1 1;
         height: 2em;
-        margin-right: 1em;
 
         line-height: 2em;
         text-align: center;
         text-transform: uppercase;
-      }
-      .letter:last-child {
-        margin-right: 0;
       }
 
       .correct {

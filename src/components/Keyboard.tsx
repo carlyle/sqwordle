@@ -17,36 +17,35 @@ type Props = {
 const Key = ({
   hint,
   label,
+  letter,
   onClick,
 }: {
   hint: LetterResult;
   label: string;
+  letter: string;
   onClick?: () => void;
 }) => (
   <>
     <button
       aria-label={RESULT_LABELS[hint]}
-      className={`key ${hint}`}
+      className={`key ${letter} ${hint}`}
       disabled={typeof onClick === 'undefined'}
       onClick={onClick}
     >
       {label}
     </button>
+
     <style jsx>{`
       .key {
-        flex: 1 1 auto;
-        height: 2em;
-        margin-right: 0.5em;
+        height: 45px;
 
         appearance: none;
         border: none;
         cursor: pointer;
       }
+
       .key:disabled {
         opacity: 0.5;
-      }
-      .key:last-child {
-        margin-right: 0;
       }
 
       .correct {
@@ -129,6 +128,7 @@ const Keyboard = ({
                     hint={LetterResult.Empty}
                     key="backspace"
                     label="🔙"
+                    letter={letter}
                     onClick={onClickBackspace}
                   />
                 );
@@ -140,6 +140,7 @@ const Keyboard = ({
                     hint={LetterResult.Empty}
                     key="enter"
                     label="Enter"
+                    letter={letter}
                     onClick={onClickEnter}
                   />
                 );
@@ -150,6 +151,7 @@ const Keyboard = ({
                   hint={hints[letter] || LetterResult.Empty}
                   key={letter}
                   label={letter.toUpperCase()}
+                  letter={letter}
                   onClick={
                     typeof onClickLetter === 'function'
                       ? () => onClickLetter(letter)
@@ -162,13 +164,24 @@ const Keyboard = ({
         ))}
       </div>
       <style jsx>{`
-        .row {
-          display: flex;
-          flex-direction: row;
-          flex-wrap: nowrap;
-          margin: 0 auto 0.5em auto;
-          width: 90%;
+        .keyboard {
+          bottom: 0;
+          height: 190px;
+          left: 0;
+          padding: 20px 10px;
+          position: fixed;
+          right: 0;
+
+          background-color: #f0f0f0;
         }
+
+        .row {
+          display: grid;
+          gap: 2px;
+          grid-auto-flow: column;
+          margin: 0 auto 0.5em auto;
+        }
+
         .row:last-child {
           margin-bottom: 0;
         }
