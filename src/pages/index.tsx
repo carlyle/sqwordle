@@ -18,24 +18,16 @@ type Props = {
 };
 
 export const getServerSideProps: GetServerSideProps<Props> = async () => {
+  const { WORDS } = await import('@app/config/private');
+  const wordCount = WORDS.length;
+
   const now = new Date();
-  const day = differenceInCalendarDays(now, START_DATE) + 1;
+  const day = (differenceInCalendarDays(now, START_DATE) + 1) % wordCount;
 
-  const { readFile } = await import('fs/promises');
-  const { resolve } = await import('path');
-
-  const words = (
-    await readFile(resolve(process.cwd(), 'src', 'config', 'words.txt'), {
-      encoding: 'utf8',
-    })
-  )
-    .split('\n')
-    .filter((line) => line !== null);
-
-  const solution = words[day - 1];
-  const validWords = words
-    .filter((word) => word.length === solution.length)
-    .sort();
+  const solution = WORDS[day - 1];
+  const validWords = WORDS.filter(
+    (word) => word.length === solution.length
+  ).sort();
 
   const game: Game = {
     day,
