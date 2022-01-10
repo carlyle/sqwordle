@@ -158,6 +158,15 @@ const HomePage = ({ game, nextGameStartsAt: nextGameStartsAtTime }: Props) => {
           .
         </p>
         <p className="disclaimer">Please don&apos;t sue me, Nintendo.</p>
+        <p className="disclaimer">
+          <a
+            href="https://github.com/carlyle/sqwordle"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            View Source
+          </a>
+        </p>
 
         <Keyboard
           hints={keyboardHints}
