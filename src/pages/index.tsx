@@ -1,9 +1,5 @@
-import {
-  differenceInCalendarDays,
-  differenceInSeconds,
-  startOfTomorrow,
-} from 'date-fns';
-import { GetStaticProps } from 'next';
+import { differenceInCalendarDays, startOfTomorrow } from 'date-fns';
+import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -21,7 +17,7 @@ type Props = {
   nextGameStartsAt: number;
 };
 
-export const getStaticProps: GetStaticProps<Props> = async () => {
+export const getServerSideProps: GetServerSideProps<Props> = async () => {
   const now = new Date();
   const day = differenceInCalendarDays(now, START_DATE) + 1;
 
@@ -49,16 +45,12 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
   };
 
   const nextGameStartsAt = startOfTomorrow();
-  const gameExpires = differenceInSeconds(nextGameStartsAt, now, {
-    roundingMethod: 'ceil',
-  });
 
   return {
     props: {
       game,
       nextGameStartsAt: nextGameStartsAt.getTime(),
     },
-    revalidate: gameExpires,
   };
 };
 
