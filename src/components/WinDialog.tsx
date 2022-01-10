@@ -1,8 +1,8 @@
+import CountdownClock from '@app/components/CountdownClock';
 import Dialog, { Props as DialogProps } from '@app/components/Dialog';
 import ShareButton from '@app/components/ShareButton';
 import { ORIGIN } from '@app/config/public';
 import { formatShareText, Game, LetterResult } from '@app/lib/game';
-import CountdownClock from './CountdownClock';
 
 type Props = DialogProps & {
   game: Game;

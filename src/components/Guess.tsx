@@ -1,14 +1,6 @@
 import { times } from '@app/lib/collections';
 import { LetterResult, RESULT_LABELS } from '@app/lib/game';
 
-const RESULT_DESCRIPTIONS: { [result in LetterResult]: string } = {
-  [LetterResult.Correct]: 'This letter is correct',
-  [LetterResult.Empty]: '',
-  [LetterResult.Incorrect]: 'This letter is not present in the word',
-  [LetterResult.Present]:
-    'This letter is preset in the word, but in another position',
-};
-
 type Props = {
   length: number;
   results?: LetterResult[];
