@@ -11,10 +11,9 @@ import Guess from '@app/components/Guess';
 import Keyboard from '@app/components/Keyboard';
 import LoseDialog from '@app/components/LoseDialog';
 import WinDialog from '@app/components/WinDialog';
-import { START_DATE } from '@app/config/private';
+import { ORIGIN } from '@app/config/public';
 import { times } from '@app/lib/collections';
 import { Game, GameState, useGame } from '@app/lib/game';
-import { ORIGIN } from '@app/config/public';
 
 type Props = {
   game: Game;
@@ -22,7 +21,7 @@ type Props = {
 };
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const { WORDS } = await import('@app/config/private');
+  const { START_DATE, WORDS } = await import('@app/config/private');
   const wordCount = WORDS.length;
 
   const now = new Date();
@@ -83,6 +82,8 @@ const HomePage = ({ game, nextGameStartsAt: nextGameStartsAtTime }: Props) => {
     }
   }, [gameState, previousGameState, setPreviousGameState, setVisibleDialog]);
 
+  const shareImageUrl = new URL('/share.png', ORIGIN);
+
   return (
     <>
       <Head>
@@ -96,7 +97,7 @@ const HomePage = ({ game, nextGameStartsAt: nextGameStartsAtTime }: Props) => {
           name="twitter:description"
           content="A Pokemon-themed take on Wordle"
         />
-        <meta name="twitter:image" content="/share.png" />
+        <meta name="twitter:image" content={shareImageUrl.toString()} />
         <meta name="twitter:title" content="SQWORDLE" />
         <meta name="twitter:url" content={ORIGIN} />
 
@@ -104,7 +105,7 @@ const HomePage = ({ game, nextGameStartsAt: nextGameStartsAtTime }: Props) => {
           property="og:description"
           content="A Pokemon-themed take on Wordle"
         />
-        <meta property="og:image" content="/share.png" />
+        <meta property="og:image" content={shareImageUrl.toString()} />
         <meta property="og:title" content="SQWORDLE" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={ORIGIN} />
