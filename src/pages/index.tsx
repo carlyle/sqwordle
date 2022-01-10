@@ -4,22 +4,20 @@ import {
   startOfTomorrow,
 } from 'date-fns';
 import { GetStaticProps } from 'next';
-import { useState } from 'react';
+import Head from 'next/head';
+import { useEffect, useMemo, useState } from 'react';
 
 import Guess from '@app/components/Guess';
 import Keyboard from '@app/components/Keyboard';
+import LoseDialog from '@app/components/LoseDialog';
+import WinDialog from '@app/components/WinDialog';
 import { START_DATE } from '@app/config/private';
 import { times } from '@app/lib/collections';
-import {
-  ALPHABET,
-  evaluateGuess,
-  Game,
-  isBetterResult,
-  LetterResult,
-} from '@app/lib/game';
+import { Game, GameState, useGame } from '@app/lib/game';
 
 type Props = {
   game: Game;
+  nextGameStartsAt: number;
 };
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
@@ -44,158 +42,132 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
 
   const game: Game = {
     day,
-    maxGuesses: solution.length + 1,
+    maxGuesses: 6,
     solution,
     validWords,
   };
 
-  const gameExpires = differenceInSeconds(startOfTomorrow(), now, {
+  const nextGameStartsAt = startOfTomorrow();
+  const gameExpires = differenceInSeconds(nextGameStartsAt, now, {
     roundingMethod: 'ceil',
   });
 
   return {
     props: {
       game,
+      nextGameStartsAt: nextGameStartsAt.getTime(),
     },
     revalidate: gameExpires,
   };
 };
 
-const HomePage = ({ game }: Props) => {
-  const [previousGuesses, setPreviousGuesses] = useState<string[]>([]); // TODO use localStorage instead
-  const [currentGuess, setCurrentGuess] = useState<string>('');
+const HomePage = ({ game, nextGameStartsAt: nextGameStartsAtTime }: Props) => {
+  const [previousGameState, setPreviousGameState] =
+    useState<GameState>('playing');
+  const [visibleDialog, setVisibleDialog] = useState<GameState | null>(null);
 
-  const wordLength = game.solution.length;
-  const hints = ALPHABET.reduce(
-    (hints, letter) => ({ ...hints, [letter]: LetterResult.Empty }),
-    {} as Record<string, LetterResult>
+  const nextGameStartsAt = useMemo(
+    () => new Date(nextGameStartsAtTime),
+    [nextGameStartsAtTime]
   );
-  const previousResults: LetterResult[][] = [];
-  let gameState: 'lost' | 'playing' | 'won' = 'playing';
-  for (const guess of previousGuesses) {
-    const results = evaluateGuess({ guess, solution: game.solution });
-    for (let index = 0; index < wordLength; index++) {
-      const letter = guess[index];
-      const result = results[index];
-      if (isBetterResult(result, hints[letter])) {
-        hints[letter] = result;
-      }
+
+  const {
+    currentGuess,
+    futureGuessCount,
+    gameState,
+    keyboardHints,
+    previousGuesses,
+    wordLength,
+    onClickBackspace,
+    onClickEnter,
+    onClickLetter,
+  } = useGame(game);
+
+  useEffect(() => {
+    if (gameState !== previousGameState) {
+      setPreviousGameState(gameState);
+      setVisibleDialog(gameState);
     }
-    previousResults.push(results);
-
-    if (results.every((result) => result === LetterResult.Correct)) {
-      gameState = 'won';
-    }
-  }
-  if (previousGuesses.length === game.maxGuesses && gameState !== 'won') {
-    gameState = 'lost';
-  }
-
-  const onClickBackspace =
-    gameState === 'playing' && currentGuess.length > 0
-      ? () => {
-          setCurrentGuess((currentGuess) =>
-            currentGuess.slice(0, currentGuess.length - 1)
-          );
-        }
-      : undefined;
-
-  const onClickEnter =
-    gameState === 'playing' && currentGuess.length === wordLength
-      ? () => {
-          if (!game.validWords.includes(currentGuess)) {
-            window.alert("Sorry, that's not a pokemon");
-            return;
-          }
-
-          setPreviousGuesses((previousGuesses) => [
-            ...previousGuesses,
-            currentGuess,
-          ]);
-          setCurrentGuess('');
-
-          if (currentGuess === game.solution) {
-            window.alert('Congratulations!');
-            return;
-          }
-
-          if (previousGuesses.length === game.maxGuesses - 1) {
-            window.alert(
-              `Sorry, it was ${game.solution.toUpperCase()}. Better luck next time!`
-            );
-            return;
-          }
-        }
-      : undefined;
-
-  const onClickLetter =
-    gameState === 'playing' && currentGuess.length < wordLength
-      ? (letter: string) => {
-          setCurrentGuess((currentGuess) => `${currentGuess}${letter}`);
-        }
-      : undefined;
-
-  const futureGuessCount =
-    game.maxGuesses -
-    previousGuesses.length -
-    (gameState === 'playing' ? 1 : 0);
+  }, [gameState, previousGameState, setPreviousGameState, setVisibleDialog]);
 
   return (
-    <div className="page">
-      <h1>Sqwordle #{game.day}</h1>
-      <h2>Who&apos;s that pokémon?</h2>
+    <>
+      <Head>
+        <title>SQWORDLE #{game.day}</title>
+        <meta name="description" content="A Pokémon-themed take on Wordle." />
+      </Head>
 
-      <div className="guesses">
-        {previousGuesses.map((guess, index) => (
-          <Guess
-            key={`previous-${index}`}
-            length={wordLength}
-            results={evaluateGuess({ guess, solution: game.solution })}
-            type="previous"
-            word={previousGuesses[index]}
-          />
-        ))}
-        {gameState === 'playing' &&
-          previousGuesses.length < game.maxGuesses && (
+      <div className="page">
+        <h1>SQWORDLE #{game.day}</h1>
+        <h2>Who&apos;s that pokémon?</h2>
+
+        <div className="guesses">
+          {previousGuesses.map(({ guess, results }, index) => (
             <Guess
-              key="current"
+              key={`previous-${index}`}
               length={wordLength}
-              type="current"
-              word={currentGuess}
+              results={results}
+              type="previous"
+              word={guess}
             />
-          )}
-        {times(futureGuessCount, (index) => (
-          <Guess key={`future-${index}`} length={wordLength} type="future" />
-        ))}
+          ))}
+          {gameState === 'playing' &&
+            previousGuesses.length < game.maxGuesses && (
+              <Guess
+                key="current"
+                length={wordLength}
+                type="current"
+                word={currentGuess}
+              />
+            )}
+          {times(futureGuessCount, (index) => (
+            <Guess key={`future-${index}`} length={wordLength} type="future" />
+          ))}
+        </div>
+
+        <p className="disclaimer">
+          A Pokémon-themed take on{' '}
+          <a
+            href="https://www.powerlanguage.co.uk/wordle/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Wordle
+          </a>
+          .
+        </p>
+        <p className="disclaimer">Please don&apos;t sue me, Nintendo.</p>
+
+        <Keyboard
+          hints={keyboardHints}
+          onClickBackspace={onClickBackspace}
+          onClickEnter={onClickEnter}
+          onClickLetter={onClickLetter}
+        />
+
+        {visibleDialog === 'lost' && (
+          <LoseDialog
+            game={game}
+            nextGameStartsAt={nextGameStartsAt}
+            onClose={() => setVisibleDialog(null)}
+          />
+        )}
+        {visibleDialog === 'won' && (
+          <WinDialog
+            game={game}
+            guesses={previousGuesses}
+            nextGameStartsAt={nextGameStartsAt}
+            onClose={() => setVisibleDialog(null)}
+          />
+        )}
       </div>
-
-      <p className="disclaimer">
-        A Pokémon-themed take on{' '}
-        <a
-          href="https://www.powerlanguage.co.uk/wordle/"
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          Wordle
-        </a>
-        .
-      </p>
-      <p className="disclaimer">Please don&apos;t sue me, Nintendo.</p>
-
-      <Keyboard
-        hints={hints}
-        onClickBackspace={onClickBackspace}
-        onClickEnter={onClickEnter}
-        onClickLetter={onClickLetter}
-      />
-
       <style jsx>{`
         .page {
           margin-bottom: 210px;
         }
 
         h1 {
-          margin: 0 0 0.25em 0;
+          margin: 1em 0 0.25em 0;
 
           text-align: center;
         }
@@ -225,7 +197,7 @@ const HomePage = ({ game }: Props) => {
           text-decoration: none;
         }
       `}</style>
-    </div>
+    </>
   );
 };
 

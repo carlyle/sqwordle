@@ -1,12 +1,15 @@
 import { AppProps } from 'next/app';
+import { Provider as ReakitProvider } from 'reakit/Provider';
 
 const App = ({ Component, pageProps }: AppProps) => (
   <>
-    <Component {...pageProps} />
+    <ReakitProvider>
+      <Component {...pageProps} />
+    </ReakitProvider>
+
     <style jsx global>{`
       body {
-        font-family: 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue',
-          'Helvetica', 'Arial', sans-serif;
+        font-family: Consolas, Menlo, Monaco, monospace;
         max-width: 680px;
         margin: 0 auto;
       }

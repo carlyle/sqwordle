@@ -56,7 +56,6 @@ const Letter = ({
 }) => (
   <>
     <div
-      aria-description={RESULT_DESCRIPTIONS[result] || undefined}
       aria-invalid={
         type === 'previous' ? result !== LetterResult.Correct : undefined
       }

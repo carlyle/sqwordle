@@ -1,3 +1,6 @@
+import { useState } from 'react';
+
+import { ORIGIN } from '@app/config/public';
 import { times } from '@app/lib/collections';
 
 export type Game = {
@@ -6,6 +9,8 @@ export type Game = {
   solution: string;
   validWords: string[];
 };
+
+export type GameState = 'lost' | 'playing' | 'won';
 
 export type Guess = {
   results: LetterResult[];
@@ -54,6 +59,13 @@ const PREFERRED_RESULTS = [
   LetterResult.Incorrect,
   LetterResult.Empty,
 ];
+
+export const RESULT_EMOJI: { [result in LetterResult]: string } = {
+  [LetterResult.Correct]: '🟩',
+  [LetterResult.Empty]: '◻️',
+  [LetterResult.Incorrect]: '◻️',
+  [LetterResult.Present]: '🟨',
+};
 
 export const RESULT_LABELS: { [result in LetterResult]: string } = {
   [LetterResult.Correct]: 'Correct',
@@ -116,8 +128,107 @@ export const evaluateGuess = ({
   return results;
 };
 
+export const formatShareText = ({
+  game,
+  guesses,
+}: {
+  game: Game;
+  guesses: { guess: string; results: LetterResult[] }[];
+}): string => {
+  return [
+    `SQWORDLE #${game.day} ${guesses.length}/${game.maxGuesses}`,
+    '',
+    ...guesses.map(({ results }) =>
+      results.map((result) => RESULT_EMOJI[result]).join('')
+    ),
+  ].join('\n');
+};
+
 export const isBetterResult = (
   result: LetterResult,
   otherResult: LetterResult
 ): boolean =>
   PREFERRED_RESULTS.indexOf(result) <= PREFERRED_RESULTS.indexOf(otherResult);
+
+export const useGame = (game: Game) => {
+  const [previousGuesses, setPreviousGuesses] = useState<string[]>([]);
+  const [currentGuess, setCurrentGuess] = useState<string>('');
+
+  const wordLength = game.solution.length;
+  const keyboardHints = ALPHABET.reduce(
+    (hints, letter) => ({ ...hints, [letter]: LetterResult.Empty }),
+    {} as Record<string, LetterResult>
+  );
+  const previousResults: LetterResult[][] = [];
+  let gameState: GameState = 'playing';
+  for (const guess of previousGuesses) {
+    const results = evaluateGuess({ guess, solution: game.solution });
+    for (let index = 0; index < wordLength; index++) {
+      const letter = guess[index];
+      const result = results[index];
+      if (isBetterResult(result, keyboardHints[letter])) {
+        keyboardHints[letter] = result;
+      }
+    }
+    previousResults.push(results);
+
+    if (results.every((result) => result === LetterResult.Correct)) {
+      gameState = 'won';
+    }
+  }
+  if (previousGuesses.length === game.maxGuesses && gameState !== 'won') {
+    gameState = 'lost';
+  }
+
+  const futureGuessCount =
+    game.maxGuesses -
+    previousGuesses.length -
+    (gameState === 'playing' ? 1 : 0);
+
+  const onClickBackspace =
+    gameState === 'playing' && currentGuess.length > 0
+      ? () => {
+          setCurrentGuess((currentGuess) =>
+            currentGuess.slice(0, currentGuess.length - 1)
+          );
+        }
+      : undefined;
+
+  const onClickEnter =
+    gameState === 'playing' && currentGuess.length === wordLength
+      ? () => {
+          if (!game.validWords.includes(currentGuess)) {
+            window.alert("Sorry, that's not a pokemon");
+            return;
+          }
+
+          setPreviousGuesses((previousGuesses) => [
+            ...previousGuesses,
+            currentGuess,
+          ]);
+          setCurrentGuess('');
+        }
+      : undefined;
+
+  const onClickLetter =
+    gameState === 'playing' && currentGuess.length < wordLength
+      ? (letter: string) => {
+          setCurrentGuess((currentGuess) => `${currentGuess}${letter}`);
+        }
+      : undefined;
+
+  return {
+    currentGuess,
+    futureGuessCount,
+    gameState,
+    keyboardHints,
+    previousGuesses: previousGuesses.map((guess, index) => ({
+      guess,
+      results: previousResults[index],
+    })),
+    wordLength,
+    onClickBackspace,
+    onClickEnter,
+    onClickLetter,
+  };
+};
