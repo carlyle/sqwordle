@@ -14,6 +14,7 @@ import WinDialog from '@app/components/WinDialog';
 import { START_DATE } from '@app/config/private';
 import { times } from '@app/lib/collections';
 import { Game, GameState, useGame } from '@app/lib/game';
+import { ORIGIN } from '@app/config/public';
 
 type Props = {
   game: Game;
@@ -94,7 +95,27 @@ const HomePage = ({ game, nextGameStartsAt: nextGameStartsAtTime }: Props) => {
     <>
       <Head>
         <title>SQWORDLE #{game.day}</title>
-        <meta name="description" content="A Pokémon-themed take on Wordle." />
+
+        <meta name="description" content="A Pokemon-themed take on Wordle" />
+        <link rel="canonical" href={ORIGIN} />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:description"
+          content="A Pokemon-themed take on Wordle"
+        />
+        <meta name="twitter:image" content="/share.png" />
+        <meta name="twitter:title" content="SQWORDLE" />
+        <meta name="twitter:url" content={ORIGIN} />
+
+        <meta
+          property="og:description"
+          content="A Pokemon-themed take on Wordle"
+        />
+        <meta property="og:image" content="/share.png" />
+        <meta property="og:title" content="SQWORDLE" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={ORIGIN} />
       </Head>
 
       <div className="page">
