@@ -1,5 +1,5 @@
 import { differenceInCalendarDays, startOfTomorrow } from 'date-fns';
-import { GetServerSideProps } from 'next';
+import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -11,13 +11,14 @@ import { START_DATE } from '@app/config/private';
 import { times } from '@app/lib/collections';
 import { Game, GameState, useGame } from '@app/lib/game';
 import { ORIGIN } from '@app/config/public';
+import { differenceInSeconds } from 'date-fns/esm';
 
 type Props = {
   game: Game;
   nextGameStartsAt: number;
 };
 
-export const getServerSideProps: GetServerSideProps<Props> = async () => {
+export const getStaticProps: GetStaticProps<Props> = async () => {
   const { WORDS } = await import('@app/config/private');
   const wordCount = WORDS.length;
 
@@ -37,12 +38,16 @@ export const getServerSideProps: GetServerSideProps<Props> = async () => {
   };
 
   const nextGameStartsAt = startOfTomorrow();
+  const gameExpiresIn = differenceInSeconds(nextGameStartsAt, now, {
+    roundingMethod: 'ceil',
+  });
 
   return {
     props: {
       game,
       nextGameStartsAt: nextGameStartsAt.getTime(),
     },
+    revalidate: gameExpiresIn,
   };
 };
 
