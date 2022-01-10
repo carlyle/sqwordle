@@ -1,4 +1,8 @@
-import { differenceInCalendarDays, startOfTomorrow } from 'date-fns';
+import {
+  differenceInCalendarDays,
+  differenceInSeconds,
+  startOfTomorrow,
+} from 'date-fns';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import { useEffect, useMemo, useState } from 'react';
@@ -11,7 +15,6 @@ import { START_DATE } from '@app/config/private';
 import { times } from '@app/lib/collections';
 import { Game, GameState, useGame } from '@app/lib/game';
 import { ORIGIN } from '@app/config/public';
-import { differenceInSeconds } from 'date-fns/esm';
 
 type Props = {
   game: Game;

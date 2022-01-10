@@ -44,7 +44,7 @@ const ShareButton = ({ text, url }: Props) => {
         });
       }
     },
-    [canShare, shareData]
+    [canShare, fallbackShareUrl, shareData]
   );
 
   return (
