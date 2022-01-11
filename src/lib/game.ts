@@ -148,7 +148,7 @@ export const formatShareText = ({
 
 export const getGameForToday = ({ words }: { words: string[] }): Game =>
   getGameForDay({
-    day: differenceInDays(START_DATE, Date.now()) + 1,
+    day: differenceInDays(Date.now(), START_DATE) + 1,
     words,
   });
 
