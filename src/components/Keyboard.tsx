@@ -1,5 +1,6 @@
-import { ALPHABET, LetterResult, RESULT_LABELS } from '@app/lib/game';
 import { useEffect } from 'react';
+
+import { ALPHABET, LetterResult, RESULT_LABELS } from '@app/lib/game';
 
 const LETTERS = [
   ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],

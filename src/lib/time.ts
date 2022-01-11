@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 
-export const useCurrentDate = () => {
-  const [currentTime, setCurrentTime] = useState<Date | undefined>(undefined);
+export const useCurrentTime = () => {
+  const [currentTime, setCurrentTime] = useState<number | undefined>(undefined);
 
   useEffect(() => {
-    setCurrentTime(new Date());
+    setCurrentTime(Date.now());
 
     if (typeof window.requestAnimationFrame === 'function') {
       let frameId: number;
       const onAnimationFrame = () => {
-        setCurrentTime(new Date());
+        setCurrentTime(Date.now());
 
         frameId = window.requestAnimationFrame(onAnimationFrame);
       };
@@ -20,7 +20,7 @@ export const useCurrentDate = () => {
         window.cancelAnimationFrame(frameId);
       };
     } else {
-      const intervalId = setInterval(() => setCurrentTime(new Date()), 100);
+      const intervalId = setInterval(() => setCurrentTime(Date.now()), 100);
 
       return () => {
         clearInterval(intervalId);

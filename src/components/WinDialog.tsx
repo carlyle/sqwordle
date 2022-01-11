@@ -1,8 +1,8 @@
+import CountdownClock from '@app/components/CountdownClock';
 import Dialog, { Props as DialogProps } from '@app/components/Dialog';
 import ShareButton from '@app/components/ShareButton';
 import { ORIGIN } from '@app/config/public';
 import { formatShareText, Game, LetterResult } from '@app/lib/game';
-import CountdownClock from './CountdownClock';
 
 type Props = DialogProps & {
   game: Game;
@@ -10,7 +10,7 @@ type Props = DialogProps & {
     guess: string;
     results: LetterResult[];
   }[];
-  nextGameStartsAt: Date;
+  nextGameStartsAt: number;
 };
 
 const WinDialog = ({ game, guesses, nextGameStartsAt, onClose }: Props) => (
@@ -19,7 +19,7 @@ const WinDialog = ({ game, guesses, nextGameStartsAt, onClose }: Props) => (
       <p>Gotcha! {game.solution.toUpperCase()} was caught!</p>
       <p>
         The next pokémon will appear in{' '}
-        <CountdownClock endDate={nextGameStartsAt} />
+        <CountdownClock endAt={nextGameStartsAt} />
       </p>
 
       <ShareButton text={formatShareText({ game, guesses })} url={ORIGIN} />

@@ -1,10 +1,12 @@
+import { addDays, differenceInDays } from 'date-fns';
 import { useState } from 'react';
 
-import { ORIGIN } from '@app/config/public';
+import { START_DATE } from '@app/config/public';
 import { times } from '@app/lib/collections';
 
 export type Game = {
   day: number;
+  endsAt: number;
   maxGuesses: number;
   solution: string;
   validWords: string[];
@@ -142,6 +144,32 @@ export const formatShareText = ({
       results.map((result) => RESULT_EMOJI[result]).join('')
     ),
   ].join('\n');
+};
+
+export const getGameForToday = ({ words }: { words: string[] }): Game =>
+  getGameForDay({
+    day: differenceInDays(START_DATE, Date.now()) + 1,
+    words,
+  });
+
+export const getGameForDay = ({
+  day,
+  words,
+}: {
+  day: number;
+  words: string[];
+}): Game => {
+  const endsAt = addDays(START_DATE, day).getTime();
+  const solution = words[(day - 1) % words.length];
+  const validWords = words.filter((word) => word.length === solution.length);
+
+  return {
+    day,
+    endsAt,
+    maxGuesses: 6,
+    solution,
+    validWords,
+  };
 };
 
 export const isBetterResult = (
