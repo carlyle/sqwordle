@@ -10,7 +10,7 @@ type Props = DialogProps & {
     guess: string;
     results: LetterResult[];
   }[];
-  nextGameStartsAt: Date;
+  nextGameStartsAt: number;
 };
 
 const WinDialog = ({ game, guesses, nextGameStartsAt, onClose }: Props) => (
@@ -19,7 +19,7 @@ const WinDialog = ({ game, guesses, nextGameStartsAt, onClose }: Props) => (
       <p>Gotcha! {game.solution.toUpperCase()} was caught!</p>
       <p>
         The next pokémon will appear in{' '}
-        <CountdownClock endDate={nextGameStartsAt} />
+        <CountdownClock endAt={nextGameStartsAt} />
       </p>
 
       <ShareButton text={formatShareText({ game, guesses })} url={ORIGIN} />

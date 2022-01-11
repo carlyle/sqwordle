@@ -4,7 +4,7 @@ import { Game } from '@app/lib/game';
 
 type Props = DialogProps & {
   game: Game;
-  nextGameStartsAt: Date;
+  nextGameStartsAt: number;
 };
 
 const LoseDialog = ({ game, nextGameStartsAt, onClose }: Props) => (
@@ -13,7 +13,7 @@ const LoseDialog = ({ game, nextGameStartsAt, onClose }: Props) => (
       <p>Aww! {game.solution.toUpperCase()} got away!</p>
       <p>
         The next pokémon will appear in{' '}
-        <CountdownClock endDate={nextGameStartsAt} />
+        <CountdownClock endAt={nextGameStartsAt} />
       </p>
     </Dialog>
     <style jsx>{`

@@ -1,11 +1,7 @@
-import {
-  differenceInCalendarDays,
-  differenceInSeconds,
-  startOfTomorrow,
-} from 'date-fns';
+import { differenceInSeconds } from 'date-fns';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Guess from '@app/components/Guess';
 import Keyboard from '@app/components/Keyboard';
@@ -13,55 +9,33 @@ import LoseDialog from '@app/components/LoseDialog';
 import WinDialog from '@app/components/WinDialog';
 import { ORIGIN } from '@app/config/public';
 import { times } from '@app/lib/collections';
-import { Game, GameState, useGame } from '@app/lib/game';
+import { Game, GameState, getGameForToday, useGame } from '@app/lib/game';
 
 type Props = {
   game: Game;
-  nextGameStartsAt: number;
 };
 
 export const getStaticProps: GetStaticProps<Props> = async () => {
-  const { START_DATE, WORDS } = await import('@app/config/private');
-  const wordCount = WORDS.length;
+  const { WORDS } = await import('@app/config/private');
 
-  const now = new Date();
-  const day = (differenceInCalendarDays(now, START_DATE) + 1) % wordCount;
+  const game = getGameForToday({ words: WORDS });
 
-  const solution = WORDS[day - 1];
-  const validWords = WORDS.filter(
-    (word) => word.length === solution.length
-  ).sort();
-
-  const game: Game = {
-    day,
-    maxGuesses: 6,
-    solution,
-    validWords,
-  };
-
-  const nextGameStartsAt = startOfTomorrow();
-  const gameExpiresIn = differenceInSeconds(nextGameStartsAt, now, {
+  const gameExpiresIn = differenceInSeconds(game.endsAt, new Date(), {
     roundingMethod: 'ceil',
   });
 
   return {
     props: {
       game,
-      nextGameStartsAt: nextGameStartsAt.getTime(),
     },
     revalidate: gameExpiresIn,
   };
 };
 
-const HomePage = ({ game, nextGameStartsAt: nextGameStartsAtTime }: Props) => {
+const HomePage = ({ game }: Props) => {
   const [previousGameState, setPreviousGameState] =
     useState<GameState>('playing');
   const [visibleDialog, setVisibleDialog] = useState<GameState | null>(null);
-
-  const nextGameStartsAt = useMemo(
-    () => new Date(nextGameStartsAtTime),
-    [nextGameStartsAtTime]
-  );
 
   const {
     currentGuess,
@@ -171,7 +145,7 @@ const HomePage = ({ game, nextGameStartsAt: nextGameStartsAtTime }: Props) => {
         {visibleDialog === 'lost' && (
           <LoseDialog
             game={game}
-            nextGameStartsAt={nextGameStartsAt}
+            nextGameStartsAt={game.endsAt}
             onClose={() => setVisibleDialog(null)}
           />
         )}
@@ -179,7 +153,7 @@ const HomePage = ({ game, nextGameStartsAt: nextGameStartsAtTime }: Props) => {
           <WinDialog
             game={game}
             guesses={previousGuesses}
-            nextGameStartsAt={nextGameStartsAt}
+            nextGameStartsAt={game.endsAt}
             onClose={() => setVisibleDialog(null)}
           />
         )}

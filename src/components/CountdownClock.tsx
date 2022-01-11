@@ -1,14 +1,25 @@
-import { useCurrentDate } from '@app/lib/time';
 import { differenceInSeconds } from 'date-fns';
 
+import { useCurrentTime } from '@app/lib/time';
+
 type Props = {
-  endDate: Date;
+  endAt: number;
 };
 
-const getIntervalString = ({ from, to }: { from: Date; to: Date }): string => {
-  const totalSeconds = differenceInSeconds(to, from, {
-    roundingMethod: 'floor',
-  });
+const getIntervalString = ({
+  from,
+  to,
+}: {
+  from: number;
+  to: number;
+}): string => {
+  const totalSeconds = Math.max(
+    0,
+    differenceInSeconds(to, from, {
+      roundingMethod: 'floor',
+    })
+  );
+
   const hours = Math.floor(totalSeconds / 60 / 60);
   const minutes = Math.floor((totalSeconds - hours * 60 * 60) / 60);
   const seconds = totalSeconds - hours * 60 * 60 - minutes * 60;
@@ -19,13 +30,13 @@ const getIntervalString = ({ from, to }: { from: Date; to: Date }): string => {
   )}:${String(seconds).padStart(2, '0')}`;
 };
 
-const CountdownClock = ({ endDate }: Props) => {
-  const currentDate = useCurrentDate();
+const CountdownClock = ({ endAt }: Props) => {
+  const currentTime = useCurrentTime();
 
   return (
     <span>
-      {currentDate
-        ? getIntervalString({ from: currentDate, to: endDate })
+      {currentTime
+        ? getIntervalString({ from: currentTime, to: endAt })
         : '--:--:--'}
     </span>
   );
