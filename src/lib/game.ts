@@ -2,12 +2,13 @@ import { addDays, differenceInDays } from 'date-fns';
 import { useState } from 'react';
 
 import { START_DATE } from '@app/config/public';
+import { useAnalytics } from '@app/lib/analytics';
 import { times } from '@app/lib/collections';
 
 export type Game = {
   day: number;
   endsAt: number;
-  maxGuesses: number;
+  maxAttempts: number;
   solution: string;
   validWords: string[];
 };
@@ -138,7 +139,7 @@ export const formatShareText = ({
   guesses: { guess: string; results: LetterResult[] }[];
 }): string => {
   return [
-    `SQWORDLE #${game.day} ${guesses.length}/${game.maxGuesses}`,
+    `SQWORDLE #${game.day} ${guesses.length}/${game.maxAttempts}`,
     '',
     ...guesses.map(({ results }) =>
       results.map((result) => RESULT_EMOJI[result]).join('')
@@ -166,7 +167,7 @@ export const getGameForDay = ({
   return {
     day,
     endsAt,
-    maxGuesses: 6,
+    maxAttempts: 6,
     solution,
     validWords,
   };
@@ -178,11 +179,12 @@ export const isBetterResult = (
 ): boolean =>
   PREFERRED_RESULTS.indexOf(result) <= PREFERRED_RESULTS.indexOf(otherResult);
 
-export const useGame = (game: Game) => {
+export const useGame = ({ day, maxAttempts, solution, validWords }: Game) => {
+  const { trackEvent } = useAnalytics();
   const [previousGuesses, setPreviousGuesses] = useState<string[]>([]);
   const [currentGuess, setCurrentGuess] = useState<string>('');
 
-  const wordLength = game.solution.length;
+  const wordLength = solution.length;
   const keyboardHints = ALPHABET.reduce(
     (hints, letter) => ({ ...hints, [letter]: LetterResult.Empty }),
     {} as Record<string, LetterResult>
@@ -190,7 +192,7 @@ export const useGame = (game: Game) => {
   const previousResults: LetterResult[][] = [];
   let gameState: GameState = 'playing';
   for (const guess of previousGuesses) {
-    const results = evaluateGuess({ guess, solution: game.solution });
+    const results = evaluateGuess({ guess, solution });
     for (let index = 0; index < wordLength; index++) {
       const letter = guess[index];
       const result = results[index];
@@ -204,14 +206,12 @@ export const useGame = (game: Game) => {
       gameState = 'won';
     }
   }
-  if (previousGuesses.length === game.maxGuesses && gameState !== 'won') {
+  if (previousGuesses.length === maxAttempts && gameState !== 'won') {
     gameState = 'lost';
   }
 
   const futureGuessCount =
-    game.maxGuesses -
-    previousGuesses.length -
-    (gameState === 'playing' ? 1 : 0);
+    maxAttempts - previousGuesses.length - (gameState === 'playing' ? 1 : 0);
 
   const onClickBackspace =
     gameState === 'playing' && currentGuess.length > 0
@@ -225,9 +225,24 @@ export const useGame = (game: Game) => {
   const onClickEnter =
     gameState === 'playing' && currentGuess.length === wordLength
       ? () => {
-          if (!game.validWords.includes(currentGuess)) {
+          if (!validWords.includes(currentGuess)) {
             window.alert("Sorry, that's not a pokemon");
             return;
+          }
+
+          const attempt = previousGuesses.length + 1;
+          const results = evaluateGuess({
+            guess: currentGuess,
+            solution: solution,
+          });
+
+          let eventName: string;
+          if (results.every((result) => result === LetterResult.Correct)) {
+            eventName = 'Win';
+          } else if (attempt === maxAttempts) {
+            eventName = 'Lose';
+          } else {
+            eventName = 'Guess';
           }
 
           setPreviousGuesses((previousGuesses) => [
@@ -235,6 +250,16 @@ export const useGame = (game: Game) => {
             currentGuess,
           ]);
           setCurrentGuess('');
+
+          trackEvent({
+            eventName,
+            props: {
+              attempt,
+              day,
+              maxAttempts,
+              wordLength,
+            },
+          });
         }
       : undefined;
 

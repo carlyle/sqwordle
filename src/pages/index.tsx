@@ -100,7 +100,7 @@ const HomePage = ({ game }: Props) => {
             />
           ))}
           {gameState === 'playing' &&
-            previousGuesses.length < game.maxGuesses && (
+            previousGuesses.length < game.maxAttempts && (
               <Guess
                 key="current"
                 length={wordLength}

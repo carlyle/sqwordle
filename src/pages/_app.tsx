@@ -1,11 +1,20 @@
 import { AppProps } from 'next/app';
+import PlausibleAnalyticsProvider from 'next-plausible';
 import { Provider as ReakitProvider } from 'reakit/Provider';
+
+import { ORIGIN, PLAUSIBLE_ANALYTICS_DOMAIN } from '@app/config/public';
 
 const App = ({ Component, pageProps }: AppProps) => (
   <>
-    <ReakitProvider>
-      <Component {...pageProps} />
-    </ReakitProvider>
+    <PlausibleAnalyticsProvider
+      customDomain={ORIGIN}
+      domain={PLAUSIBLE_ANALYTICS_DOMAIN || ''}
+      enabled={typeof PLAUSIBLE_ANALYTICS_DOMAIN === 'string'}
+    >
+      <ReakitProvider>
+        <Component {...pageProps} />
+      </ReakitProvider>
+    </PlausibleAnalyticsProvider>
 
     <style jsx global>{`
       body {
