@@ -65,8 +65,8 @@ const PREFERRED_RESULTS = [
 
 export const RESULT_EMOJI: { [result in LetterResult]: string } = {
   [LetterResult.Correct]: '🟩',
-  [LetterResult.Empty]: '⬜️',
-  [LetterResult.Incorrect]: '⬜️',
+  [LetterResult.Empty]: '⬜',
+  [LetterResult.Incorrect]: '⬜',
   [LetterResult.Present]: '🟨',
 };
 
