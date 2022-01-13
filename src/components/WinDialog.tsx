@@ -2,14 +2,11 @@ import CountdownClock from '@app/components/CountdownClock';
 import Dialog, { Props as DialogProps } from '@app/components/Dialog';
 import ShareButton from '@app/components/ShareButton';
 import { ORIGIN } from '@app/config/public';
-import { formatShareText, Game, LetterResult } from '@app/lib/game';
+import { formatShareText, Game, Guess } from '@app/lib/game';
 
 type Props = DialogProps & {
   game: Game;
-  guesses: {
-    guess: string;
-    results: LetterResult[];
-  }[];
+  guesses: Guess[];
   nextGameStartsAt: number;
 };
 

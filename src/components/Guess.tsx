@@ -66,7 +66,7 @@ const Letter = ({
       }
 
       .correct {
-        background-color: green;
+        background-color: #4d915b;
         color: white;
       }
 
@@ -81,8 +81,8 @@ const Letter = ({
       }
 
       .present {
-        background-color: yellow;
-        color: black;
+        background-color: #f5e087;
+        color: #5f383f;
       }
     `}</style>
   </>

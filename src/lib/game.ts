@@ -1,9 +1,9 @@
 import { addDays, differenceInDays } from 'date-fns';
-import { useState } from 'react';
 
 import { START_DATE } from '@app/config/public';
 import { useAnalytics } from '@app/lib/analytics';
 import { times } from '@app/lib/collections';
+import { usePersistentStorage } from '@app/lib/storage';
 
 export type Game = {
   day: number;
@@ -13,12 +13,18 @@ export type Game = {
   validWords: string[];
 };
 
-export type GameState = 'lost' | 'playing' | 'won';
-
 export type Guess = {
   results: LetterResult[];
   word: string;
 };
+
+export type GameState = {
+  currentGuess: string;
+  guesses: Guess[];
+  status: GameStatus;
+};
+
+export type GameStatus = 'loading' | 'lost' | 'playing' | 'won';
 
 export enum LetterResult {
   Correct = 'correct',
@@ -56,6 +62,12 @@ export const ALPHABET = [
   'z',
 ];
 
+const DEFAULT_GAME_STATE: GameState = {
+  currentGuess: '',
+  guesses: [],
+  status: 'playing',
+};
+
 const PREFERRED_RESULTS = [
   LetterResult.Correct,
   LetterResult.Present,
@@ -75,6 +87,25 @@ export const RESULT_LABELS: { [result in LetterResult]: string } = {
   [LetterResult.Empty]: '',
   [LetterResult.Incorrect]: 'Incorrect',
   [LetterResult.Present]: 'Present',
+};
+
+export const collectKeyboardHints = (
+  guesses: Guess[]
+): Record<string, LetterResult> => {
+  const hints: Record<string, LetterResult> = {};
+
+  for (const { results, word } of guesses) {
+    for (let index = 0; index < results.length; index++) {
+      const letter = word[index];
+      const result = results[index];
+
+      if (isBetterResult(result, hints[letter] || LetterResult.Empty)) {
+        hints[letter] = result;
+      }
+    }
+  }
+
+  return hints;
 };
 
 export const countLetters = (word: string): Record<string, number> =>
@@ -136,7 +167,7 @@ export const formatShareText = ({
   guesses,
 }: {
   game: Game;
-  guesses: { guess: string; results: LetterResult[] }[];
+  guesses: Guess[];
 }): string => {
   return [
     `SQWORDLE #${game.day} ${guesses.length}/${game.maxAttempts}`,
@@ -147,20 +178,31 @@ export const formatShareText = ({
   ].join('\n');
 };
 
-export const getGameForToday = ({ words }: { words: string[] }): Game =>
-  getGameForDay({
-    day: differenceInDays(Date.now(), START_DATE) + 1,
-    words,
-  });
+export const getDay = ({
+  startDate = START_DATE,
+}: {
+  startDate?: Date;
+} = {}): number => {
+  const daysSinceStart = differenceInDays(Date.now(), startDate);
+  if (daysSinceStart < 0) {
+    throw new Error(
+      `Unable to determine the current day number, the startDate is in the future`
+    );
+  }
+
+  return daysSinceStart + 1;
+};
 
 export const getGameForDay = ({
   day,
+  startDate = START_DATE,
   words,
 }: {
   day: number;
+  startDate?: Date;
   words: string[];
 }): Game => {
-  const endsAt = addDays(START_DATE, day).getTime();
+  const endsAt = addDays(startDate, day).getTime();
   const solution = words[(day - 1) % words.length];
   const validWords = words.filter((word) => word.length === solution.length);
 
@@ -179,106 +221,108 @@ export const isBetterResult = (
 ): boolean =>
   PREFERRED_RESULTS.indexOf(result) <= PREFERRED_RESULTS.indexOf(otherResult);
 
+const isGameState = (value: unknown): value is GameState =>
+  typeof value === 'object' &&
+  value !== null &&
+  typeof (<GameState>value).currentGuess === 'string';
+
+export const parseGameState = (serializedState: string): GameState => {
+  const gameState = JSON.parse(serializedState);
+  if (!isGameState(gameState)) {
+    throw new Error(`Invalid game state: ${serializedState}`);
+  }
+
+  return gameState;
+};
+
 export const useGame = ({ day, maxAttempts, solution, validWords }: Game) => {
   const { trackEvent } = useAnalytics();
-  const [previousGuesses, setPreviousGuesses] = useState<string[]>([]);
-  const [currentGuess, setCurrentGuess] = useState<string>('');
-
-  const wordLength = solution.length;
-  const keyboardHints = ALPHABET.reduce(
-    (hints, letter) => ({ ...hints, [letter]: LetterResult.Empty }),
-    {} as Record<string, LetterResult>
+  const gameState = usePersistentStorage<GameState>(
+    `days[${day}]`,
+    DEFAULT_GAME_STATE,
+    {
+      deserialize: parseGameState,
+    }
   );
-  const previousResults: LetterResult[][] = [];
-  let gameState: GameState = 'playing';
-  for (const guess of previousGuesses) {
-    const results = evaluateGuess({ guess, solution });
-    for (let index = 0; index < wordLength; index++) {
-      const letter = guess[index];
-      const result = results[index];
-      if (isBetterResult(result, keyboardHints[letter])) {
-        keyboardHints[letter] = result;
-      }
+
+  const { currentGuess, guesses, status } = gameState.value;
+
+  const attempt = guesses.length + (status === 'playing' ? 1 : 0);
+  const attemptsRemaining = maxAttempts - attempt;
+  const keyboardHints = collectKeyboardHints(guesses);
+  const wordLength = solution.length;
+
+  let onClickBackspace: (() => void) | undefined = undefined;
+  let onClickEnter: (() => void) | undefined = undefined;
+  let onClickLetter: ((letter: string) => void) | undefined = undefined;
+  if (gameState.status === 'loaded' && status === 'playing') {
+    if (currentGuess.length > 0) {
+      onClickBackspace = () => {
+        gameState.update({
+          currentGuess: currentGuess.slice(0, currentGuess.length - 1),
+        });
+      };
     }
-    previousResults.push(results);
 
-    if (results.every((result) => result === LetterResult.Correct)) {
-      gameState = 'won';
+    if (currentGuess.length < wordLength) {
+      onClickLetter = (letter: string) => {
+        gameState.update({ currentGuess: `${currentGuess}${letter}` });
+      };
     }
-  }
-  if (previousGuesses.length === maxAttempts && gameState !== 'won') {
-    gameState = 'lost';
-  }
 
-  const futureGuessCount =
-    maxAttempts - previousGuesses.length - (gameState === 'playing' ? 1 : 0);
-
-  const onClickBackspace =
-    gameState === 'playing' && currentGuess.length > 0
-      ? () => {
-          setCurrentGuess((currentGuess) =>
-            currentGuess.slice(0, currentGuess.length - 1)
-          );
+    if (currentGuess.length === wordLength) {
+      onClickEnter = () => {
+        if (!validWords.includes(currentGuess)) {
+          window.alert("Sorry, that's not a pokemon");
+          return;
         }
-      : undefined;
 
-  const onClickEnter =
-    gameState === 'playing' && currentGuess.length === wordLength
-      ? () => {
-          if (!validWords.includes(currentGuess)) {
-            window.alert("Sorry, that's not a pokemon");
-            return;
-          }
+        const results = evaluateGuess({ guess: currentGuess, solution });
+        let eventName: string;
+        let newStatus: GameStatus;
 
-          const attempt = previousGuesses.length + 1;
-          const results = evaluateGuess({
-            guess: currentGuess,
-            solution: solution,
-          });
+        if (results.every((result) => result === LetterResult.Correct)) {
+          eventName = 'Win';
+          newStatus = 'won';
+        } else if (attempt === maxAttempts) {
+          eventName = 'Lose';
+          newStatus = 'lost';
+        } else {
+          eventName = 'Guess';
+          newStatus = 'playing';
+        }
 
-          let eventName: string;
-          if (results.every((result) => result === LetterResult.Correct)) {
-            eventName = 'Win';
-          } else if (attempt === maxAttempts) {
-            eventName = 'Lose';
-          } else {
-            eventName = 'Guess';
-          }
-
-          setPreviousGuesses((previousGuesses) => [
-            ...previousGuesses,
-            currentGuess,
-          ]);
-          setCurrentGuess('');
-
-          trackEvent({
-            eventName,
-            props: {
-              attempt,
-              day,
-              maxAttempts,
-              wordLength,
+        gameState.update({
+          currentGuess: '',
+          guesses: [
+            ...guesses,
+            {
+              results,
+              word: currentGuess,
             },
-          });
-        }
-      : undefined;
+          ],
+          status: newStatus,
+        });
 
-  const onClickLetter =
-    gameState === 'playing' && currentGuess.length < wordLength
-      ? (letter: string) => {
-          setCurrentGuess((currentGuess) => `${currentGuess}${letter}`);
-        }
-      : undefined;
+        trackEvent({
+          eventName,
+          props: {
+            attempt,
+            day,
+            maxAttempts,
+            wordLength,
+          },
+        });
+      };
+    }
+  }
 
   return {
+    attemptsRemaining,
     currentGuess,
-    futureGuessCount,
-    gameState,
+    guesses,
     keyboardHints,
-    previousGuesses: previousGuesses.map((guess, index) => ({
-      guess,
-      results: previousResults[index],
-    })),
+    status: gameState.status === 'loaded' ? status : 'loading',
     wordLength,
     onClickBackspace,
     onClickEnter,

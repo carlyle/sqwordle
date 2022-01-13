@@ -9,7 +9,13 @@ import LoseDialog from '@app/components/LoseDialog';
 import WinDialog from '@app/components/WinDialog';
 import { ORIGIN } from '@app/config/public';
 import { times } from '@app/lib/collections';
-import { Game, GameState, getGameForToday, useGame } from '@app/lib/game';
+import {
+  Game,
+  GameStatus,
+  getDay,
+  getGameForDay,
+  useGame,
+} from '@app/lib/game';
 
 type Props = {
   game: Game;
@@ -18,7 +24,7 @@ type Props = {
 export const getStaticProps: GetStaticProps<Props> = async () => {
   const { WORDS } = await import('@app/config/private');
 
-  const game = getGameForToday({ words: WORDS });
+  const game = getGameForDay({ day: getDay(), words: WORDS });
 
   const gameExpiresIn = differenceInSeconds(game.endsAt, new Date(), {
     roundingMethod: 'ceil',
@@ -33,16 +39,15 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
 };
 
 const HomePage = ({ game }: Props) => {
-  const [previousGameState, setPreviousGameState] =
-    useState<GameState>('playing');
-  const [visibleDialog, setVisibleDialog] = useState<GameState | null>(null);
+  const [previousStatus, setPreviousStatus] = useState<GameStatus>('playing');
+  const [visibleDialog, setVisibleDialog] = useState<GameStatus | null>(null);
 
   const {
+    attemptsRemaining,
     currentGuess,
-    futureGuessCount,
-    gameState,
+    guesses,
     keyboardHints,
-    previousGuesses,
+    status,
     wordLength,
     onClickBackspace,
     onClickEnter,
@@ -50,11 +55,11 @@ const HomePage = ({ game }: Props) => {
   } = useGame(game);
 
   useEffect(() => {
-    if (gameState !== previousGameState) {
-      setPreviousGameState(gameState);
-      setVisibleDialog(gameState);
+    if (status !== previousStatus) {
+      setPreviousStatus(status);
+      setVisibleDialog(status);
     }
-  }, [gameState, previousGameState, setPreviousGameState, setVisibleDialog]);
+  }, [status, previousStatus, setPreviousStatus, setVisibleDialog]);
 
   const shareImageUrl = new URL('/share.png', ORIGIN);
 
@@ -90,25 +95,23 @@ const HomePage = ({ game }: Props) => {
         <h2>Who&apos;s that pokémon?</h2>
 
         <div className="guesses">
-          {previousGuesses.map(({ guess, results }, index) => (
+          {guesses.map((guess, index) => (
             <Guess
               key={`previous-${index}`}
               length={wordLength}
-              results={results}
               type="previous"
-              word={guess}
+              {...guess}
             />
           ))}
-          {gameState === 'playing' &&
-            previousGuesses.length < game.maxAttempts && (
-              <Guess
-                key="current"
-                length={wordLength}
-                type="current"
-                word={currentGuess}
-              />
-            )}
-          {times(futureGuessCount, (index) => (
+          {status === 'playing' && guesses.length < game.maxAttempts && (
+            <Guess
+              key="current"
+              length={wordLength}
+              type="current"
+              word={currentGuess}
+            />
+          )}
+          {times(attemptsRemaining, (index) => (
             <Guess key={`future-${index}`} length={wordLength} type="future" />
           ))}
         </div>
@@ -152,7 +155,7 @@ const HomePage = ({ game }: Props) => {
         {visibleDialog === 'won' && (
           <WinDialog
             game={game}
-            guesses={previousGuesses}
+            guesses={guesses}
             nextGameStartsAt={game.endsAt}
             onClose={() => setVisibleDialog(null)}
           />
