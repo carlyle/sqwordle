@@ -94,7 +94,7 @@ export const usePersistentStorage = <T>(
 
       setState((state) => ({ ...state, status: 'loaded', value: newValue }));
     },
-    [key, setState, state]
+    [key, serialize, setState, state]
   );
 
   switch (state.status) {
