@@ -1,7 +1,6 @@
 import { addDays, differenceInDays } from 'date-fns';
 
 import { START_DATE } from '@app/config/public';
-import { useAnalytics } from '@app/lib/analytics';
 import { times } from '@app/lib/collections';
 import { usePersistentStorage } from '@app/lib/storage';
 
@@ -236,7 +235,6 @@ export const parseGameState = (serializedState: string): GameState => {
 };
 
 export const useGame = ({ day, maxAttempts, solution, validWords }: Game) => {
-  const { trackEvent } = useAnalytics();
   const gameState = usePersistentStorage<GameState>(
     `days[${day}]`,
     DEFAULT_GAME_STATE,
@@ -302,16 +300,6 @@ export const useGame = ({ day, maxAttempts, solution, validWords }: Game) => {
             },
           ],
           status: newStatus,
-        });
-
-        trackEvent({
-          eventName,
-          props: {
-            attempt,
-            day,
-            maxAttempts,
-            wordLength,
-          },
         });
       };
     }

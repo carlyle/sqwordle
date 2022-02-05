@@ -1,7 +1,5 @@
 import { MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { useAnalytics } from '@app/lib/analytics';
-
 type Props = {
   text: string;
   url: string;
@@ -16,8 +14,6 @@ const buildTwitterUrl = ({ text, url }: Props): string => {
 };
 
 const ShareButton = ({ text, url }: Props) => {
-  const { trackEvent } = useAnalytics();
-
   const [canShare, setCanShare] = useState<boolean | undefined>(undefined);
   const shareData = useMemo<ShareData>(
     () => ({
@@ -38,8 +34,6 @@ const ShareButton = ({ text, url }: Props) => {
 
   const onClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>) => {
-      trackEvent({ eventName: 'Share' });
-
       if (canShare) {
         event.preventDefault();
 
@@ -50,7 +44,7 @@ const ShareButton = ({ text, url }: Props) => {
         });
       }
     },
-    [canShare, fallbackShareUrl, shareData, trackEvent]
+    [canShare, fallbackShareUrl, shareData]
   );
 
   return (
