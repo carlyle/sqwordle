@@ -1,9 +1,6 @@
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-import PlausibleAnalyticsProvider from 'next-plausible';
 import { Provider as ReakitProvider } from 'reakit/Provider';
-
-import { ORIGIN, PLAUSIBLE_ANALYTICS_DOMAIN } from '@app/config/public';
 
 const App = ({ Component, pageProps }: AppProps) => (
   <>
@@ -11,15 +8,9 @@ const App = ({ Component, pageProps }: AppProps) => (
       <link rel="shortcut icon" href="/favicon.ico" />
     </Head>
 
-    <PlausibleAnalyticsProvider
-      customDomain={ORIGIN}
-      domain={PLAUSIBLE_ANALYTICS_DOMAIN || ''}
-      enabled={typeof PLAUSIBLE_ANALYTICS_DOMAIN === 'string'}
-    >
-      <ReakitProvider>
-        <Component {...pageProps} />
-      </ReakitProvider>
-    </PlausibleAnalyticsProvider>
+    <ReakitProvider>
+      <Component {...pageProps} />
+    </ReakitProvider>
 
     <style jsx global>{`
       body {

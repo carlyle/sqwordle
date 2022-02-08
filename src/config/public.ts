@@ -23,9 +23,3 @@ if (typeof startDateString !== 'string') {
   throw new Error('Missing NEXT_PUBLIC_START_DATE');
 }
 export const START_DATE = zonedTimeToUtc(startDateString, TIMEZONE);
-
-////
-/// Plausible Analytics
-//
-export const PLAUSIBLE_ANALYTICS_DOMAIN =
-  process.env.NEXT_PUBLIC_PLAUSIBLE_ANALYTICS_DOMAIN;
