@@ -3,10 +3,6 @@ import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 
-import Guess from '@app/components/Guess';
-import Keyboard from '@app/components/Keyboard';
-import LoseDialog from '@app/components/LoseDialog';
-import WinDialog from '@app/components/WinDialog';
 import { ORIGIN } from '@app/config/public';
 import { times } from '@app/lib/collections';
 import {
@@ -16,6 +12,11 @@ import {
   getGameForDay,
   useGame,
 } from '@app/lib/game';
+import { GuessWord } from '@app/ui/GuessWord';
+import { Keyboard } from '@app/ui/Keyboard';
+import { LoseDialog } from '@app/ui/LoseDialog';
+import { WinDialog } from '@app/ui/WinDialog';
+import { styled } from '@app/ui/core';
 
 type Props = {
   game: Game;
@@ -37,6 +38,55 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
     revalidate: gameExpiresIn,
   };
 };
+
+const Disclaimer = styled('p', {
+  margin: '0 auto 0.5rem auto',
+  width: '80%',
+
+  color: '$slate11',
+  fontSize: '$xs',
+  lineHeight: 1.1,
+  textAlign: 'center',
+
+  '@md': {
+    fontSize: '$md',
+  },
+
+  '& a': {
+    color: '$indigo11',
+    textDecoration: 'none',
+  },
+});
+
+const GuessesContainer = styled('div', {
+  marginBottom: '2rem',
+});
+
+const Heading = styled('h1', {
+  margin: '1rem 0 0.25rem 0',
+
+  fontSize: '$lg',
+  textAlign: 'center',
+
+  '@md': {
+    fontSize: '$xl',
+  },
+});
+
+const PageContainer = styled('div', {
+  marginBottom: 220,
+});
+
+const Subhead = styled('h2', {
+  margin: '0 0 1rem 0',
+  fontSize: '$md',
+
+  textAlign: 'center',
+
+  '@md': {
+    fontSize: '$lg',
+  },
+});
 
 const HomePage = ({ game }: Props) => {
   const [previousStatus, setPreviousStatus] = useState<GameStatus>('playing');
@@ -68,13 +118,13 @@ const HomePage = ({ game }: Props) => {
       <Head>
         <title>SQWORDLE #{game.day}</title>
 
-        <meta name="description" content="A Pokemon-themed take on Wordle" />
+        <meta name="description" content="A Pokémon-themed take on Wordle" />
         <link rel="canonical" href={ORIGIN} />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:description"
-          content="A Pokemon-themed take on Wordle"
+          content="A Pokémon-themed take on Wordle"
         />
         <meta name="twitter:image" content={shareImageUrl.toString()} />
         <meta name="twitter:title" content="SQWORDLE" />
@@ -82,7 +132,7 @@ const HomePage = ({ game }: Props) => {
 
         <meta
           property="og:description"
-          content="A Pokemon-themed take on Wordle"
+          content="A Pokémon-themed take on Wordle"
         />
         <meta property="og:image" content={shareImageUrl.toString()} />
         <meta property="og:title" content="SQWORDLE" />
@@ -90,13 +140,13 @@ const HomePage = ({ game }: Props) => {
         <meta property="og:url" content={ORIGIN} />
       </Head>
 
-      <div className="page">
-        <h1>SQWORDLE #{game.day}</h1>
-        <h2>Who&apos;s that pokémon?</h2>
+      <PageContainer>
+        <Heading>SQWORDLE #{game.day}</Heading>
+        <Subhead>Who&apos;s that Pokémon?</Subhead>
 
-        <div className="guesses">
+        <GuessesContainer>
           {guesses.map((guess, index) => (
-            <Guess
+            <GuessWord
               key={`previous-${index}`}
               length={wordLength}
               type="previous"
@@ -104,7 +154,7 @@ const HomePage = ({ game }: Props) => {
             />
           ))}
           {status === 'playing' && guesses.length < game.maxAttempts && (
-            <Guess
+            <GuessWord
               key="current"
               length={wordLength}
               type="current"
@@ -112,23 +162,29 @@ const HomePage = ({ game }: Props) => {
             />
           )}
           {times(attemptsRemaining, (index) => (
-            <Guess key={`future-${index}`} length={wordLength} type="future" />
+            <GuessWord
+              key={`future-${index}`}
+              length={wordLength}
+              type="future"
+            />
           ))}
-        </div>
+        </GuessesContainer>
 
-        <p className="disclaimer">
+        <Disclaimer className="disclaimer">
           A Pokémon-themed take on{' '}
           <a
-            href="https://www.powerlanguage.co.uk/wordle/"
+            href="https://www.nytimes.com/games/wordle/index.html"
             rel="noopener noreferrer"
             target="_blank"
           >
             Wordle
           </a>
           .
-        </p>
-        <p className="disclaimer">Please don&apos;t sue me, Nintendo.</p>
-        <p className="disclaimer">
+        </Disclaimer>
+        <Disclaimer className="disclaimer">
+          Please don&apos;t sue me, Nintendo.
+        </Disclaimer>
+        <Disclaimer className="disclaimer">
           <a
             href="https://github.com/carlyle/sqwordle"
             rel="noopener noreferrer"
@@ -136,7 +192,7 @@ const HomePage = ({ game }: Props) => {
           >
             View Source
           </a>
-        </p>
+        </Disclaimer>
 
         <Keyboard
           hints={keyboardHints}
@@ -148,6 +204,7 @@ const HomePage = ({ game }: Props) => {
         {visibleDialog === 'lost' && (
           <LoseDialog
             game={game}
+            guesses={guesses}
             nextGameStartsAt={game.endsAt}
             onClose={() => setVisibleDialog(null)}
           />
@@ -160,43 +217,7 @@ const HomePage = ({ game }: Props) => {
             onClose={() => setVisibleDialog(null)}
           />
         )}
-      </div>
-      <style jsx>{`
-        .page {
-          margin-bottom: 210px;
-        }
-
-        h1 {
-          margin: 1em 0 0.25em 0;
-
-          text-align: center;
-        }
-
-        h2 {
-          margin: 0 0 1em 0;
-
-          font-size: 1.2em;
-          text-align: center;
-        }
-
-        .guesses {
-          margin: 0 0 2em 0;
-        }
-
-        .disclaimer {
-          margin: 0 auto 1em auto;
-          width: 80%;
-
-          color: darkgrey;
-          font-size: 12px;
-          text-align: center;
-        }
-
-        .disclaimer a {
-          color: rgb(89, 89, 231);
-          text-decoration: none;
-        }
-      `}</style>
+      </PageContainer>
     </>
   );
 };

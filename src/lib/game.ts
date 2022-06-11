@@ -25,6 +25,8 @@ export type GameState = {
 
 export type GameStatus = 'loading' | 'lost' | 'playing' | 'won';
 
+export type GuessType = 'current' | 'future' | 'previous';
+
 export enum LetterResult {
   Correct = 'correct',
   Empty = 'empty',
@@ -168,8 +170,11 @@ export const formatShareText = ({
   game: Game;
   guesses: Guess[];
 }): string => {
+  const lastGuess = guesses[guesses.length - 1];
+  const guessCount = lastGuess.word === game.solution ? guesses.length : 'X';
+
   return [
-    `SQWORDLE #${game.day} ${guesses.length}/${game.maxAttempts}`,
+    `SQWORDLE #${game.day} ${guessCount}/${game.maxAttempts}`,
     '',
     ...guesses.map(({ results }) =>
       results.map((result) => RESULT_EMOJI[result]).join('')

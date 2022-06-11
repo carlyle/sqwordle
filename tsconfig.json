@@ -19,7 +19,8 @@
       "@app/components/*": ["src/components/*"],
       "@app/config/*": ["src/config/*"],
       "@app/lib/*": ["src/lib/*"],
-      "@app/pages/*": ["src/pages/*"]
+      "@app/pages/*": ["src/pages/*"],
+      "@app/ui/*": ["src/ui/*"]
     },
     "resolveJsonModule": true,
     "skipLibCheck": true,
