@@ -1,29 +1,36 @@
 import { AppProps } from 'next/app';
 import Head from 'next/head';
-import { Provider as ReakitProvider } from 'reakit/Provider';
 
-const App = ({ Component, pageProps }: AppProps) => (
-  <>
-    <Head>
-      <link rel="shortcut icon" href="/favicon.ico" />
-    </Head>
+import { globalCss } from '@app/ui/core';
 
-    <ReakitProvider>
+const renderGlobalStyles = globalCss({
+  '*': {
+    boxSizing: 'border-box',
+  },
+
+  body: {
+    margin: '0 auto',
+    maxWidth: 680,
+
+    backgroundColor: '$slate1',
+
+    fontFamily: '$monospace',
+    fontSize: '$md',
+  },
+});
+
+const App = ({ Component, pageProps }: AppProps) => {
+  renderGlobalStyles();
+
+  return (
+    <>
+      <Head>
+        <link rel="shortcut icon" href="/favicon.ico" />
+      </Head>
+
       <Component {...pageProps} />
-    </ReakitProvider>
-
-    <style jsx global>{`
-      body {
-        font-family: Consolas, Menlo, Monaco, monospace;
-        max-width: 680px;
-        margin: 0 auto;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-    `}</style>
-  </>
-);
+    </>
+  );
+};
 
 export default App;

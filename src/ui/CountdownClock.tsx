@@ -29,7 +29,7 @@ const getIntervalString = ({
   ].join(':');
 };
 
-const CountdownClock = ({ endAt }: Props) => {
+export const CountdownClock = ({ endAt }: Props) => {
   const currentTime = useCurrentTime();
 
   return (
@@ -40,5 +40,3 @@ const CountdownClock = ({ endAt }: Props) => {
     </span>
   );
 };
-
-export default CountdownClock;
