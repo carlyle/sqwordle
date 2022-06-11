@@ -16,7 +16,6 @@
     "moduleResolution": "node",
     "noEmit": true,
     "paths": {
-      "@app/components/*": ["src/components/*"],
       "@app/config/*": ["src/config/*"],
       "@app/lib/*": ["src/lib/*"],
       "@app/pages/*": ["src/pages/*"],
