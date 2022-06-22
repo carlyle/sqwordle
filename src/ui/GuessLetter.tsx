@@ -26,8 +26,8 @@ const Letter = styled('div', {
   },
 
   '&.incorrect': {
-    backgroundColor: '$slate5',
-    color: '$slate11',
+    backgroundColor: '$slate11',
+    color: '$slate3',
   },
 
   '&.present': {
