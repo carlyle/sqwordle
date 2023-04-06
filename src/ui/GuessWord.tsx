@@ -1,7 +1,8 @@
 import { times } from '@app/lib/collections';
 import { GuessType, LetterResult } from '@app/lib/game';
-import { styled } from '@app/ui/core';
 import { GuessLetter } from '@app/ui/GuessLetter';
+
+import styles from './GuessWord.module.scss';
 
 type Props = {
   length: number;
@@ -10,22 +11,8 @@ type Props = {
   word?: string;
 };
 
-const Container = styled('div', {
-  columnGap: 10,
-  display: 'flex',
-  flexDirection: 'row',
-  flexWrap: 'nowrap',
-  justifyContent: 'space-between',
-  margin: '0 auto 10px auto',
-  width: '90%',
-
-  '&:last-child': {
-    marginBottom: 0,
-  },
-});
-
 export const GuessWord = ({ length, results = [], type, word = '' }: Props) => (
-  <Container>
+  <div className={styles.word}>
     {times(length, (index) => (
       <GuessLetter
         key={String(index)}
@@ -34,5 +21,5 @@ export const GuessWord = ({ length, results = [], type, word = '' }: Props) => (
         type={type}
       />
     ))}
-  </Container>
+  </div>
 );

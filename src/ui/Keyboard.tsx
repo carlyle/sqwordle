@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 
 import { ALPHABET, LetterResult } from '@app/lib/game';
-import { styled } from '@app/ui/core';
 import { KeyboardKey } from '@app/ui/KeyboardKey';
+
+import styles from './Keyboard.module.scss';
 
 const LETTERS = [
   ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
@@ -16,32 +17,6 @@ type Props = {
   onClickEnter?: () => void;
   onClickLetter?: (letter: string) => void;
 };
-
-const Container = styled('div', {
-  bottom: 0,
-  height: 200,
-  left: 0,
-  padding: '20px 10px',
-  position: 'fixed',
-  right: 0,
-
-  backgroundColor: '$slate3',
-});
-
-const Row = styled('div', {
-  columnGap: '1vw',
-  display: 'flex',
-  flexDirection: 'row',
-  flexWrap: 'nowrap',
-  height: 45,
-  justifyContent: 'space-between',
-  margin: '0 auto 1vw auto',
-  width: '100%',
-
-  '&:last-of-type': {
-    marginBottom: 0,
-  },
-});
 
 export const Keyboard = ({
   hints,
@@ -89,9 +64,9 @@ export const Keyboard = ({
   }, [onClickBackspace, onClickEnter, onClickLetter]);
 
   return (
-    <Container>
+    <div className={styles.keyboard}>
       {LETTERS.map((row, index) => (
-        <Row key={String(index)}>
+        <div className={styles.row} key={String(index)}>
           {row.map((letter) => {
             if (letter === 'backspace') {
               return (
@@ -134,8 +109,8 @@ export const Keyboard = ({
               </KeyboardKey>
             );
           })}
-        </Row>
+        </div>
       ))}
-    </Container>
+    </div>
   );
 };

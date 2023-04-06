@@ -1,7 +1,7 @@
 .next/
+.vercel/
 .vscode/
 node_modules/
 
 .DS_Store
 .env
-.vercel

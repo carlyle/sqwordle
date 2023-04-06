@@ -2,22 +2,17 @@ import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 import { ORIGIN } from '@app/config/public';
 import { formatShareText, Game, Guess } from '@app/lib/game';
-import { styled } from '@app/ui/core';
 import { CountdownClock } from '@app/ui/CountdownClock';
 import { Dialog, DialogProps, DialogTitle } from '@app/ui/Dialog';
 import { ShareButton } from '@app/ui/ShareButton';
+
+import styles from './WinDialog.module.scss';
 
 export type Props = DialogProps & {
   game: Game;
   guesses: Guess[];
   nextGameStartsAt: number;
 };
-
-const Text = styled('p', {
-  margin: '0 0 1rem 0',
-
-  fontSize: '$md',
-});
 
 export const WinDialog = ({
   game,
@@ -30,11 +25,13 @@ export const WinDialog = ({
       <DialogTitle>Success!</DialogTitle>
     </VisuallyHidden>
 
-    <Text>Gotcha! {game.solution.toUpperCase()} was caught!</Text>
-    <Text>
+    <p className={styles.text}>
+      Gotcha! {game.solution.toUpperCase()} was caught!
+    </p>
+    <p className={styles.text}>
       The next pokémon will appear in{' '}
       <CountdownClock endAt={nextGameStartsAt} />
-    </Text>
+    </p>
 
     <ShareButton text={formatShareText({ game, guesses })} url={ORIGIN} />
   </Dialog>

@@ -1,46 +1,17 @@
 import {
   Dialog as DialogRoot,
-  DialogClose as UnstyledDialogClose,
-  DialogContent as UnstyledDialogContent,
+  DialogClose,
+  DialogContent,
   DialogPortal,
   DialogTitle,
 } from '@radix-ui/react-dialog';
 import { ReactNode, useCallback, useState } from 'react';
 
-import { styled } from '@app/ui/core';
+import styles from './Dialog.module.scss';
 
 export type DialogProps = {
   onClose: () => void;
 };
-
-const CloseButton = styled('button', {
-  appearance: 'none',
-  backgroundColor: 'transparent',
-  border: 'none',
-  cursor: 'pointer',
-
-  fontSize: '$md',
-});
-
-const DialogClose = styled(UnstyledDialogClose, {
-  position: 'absolute',
-  right: 10,
-  top: 10,
-});
-
-const DialogContent = styled(UnstyledDialogContent, {
-  left: '50%',
-  minWidth: '60%',
-  padding: '40px 20px 20px 20px',
-  position: 'fixed',
-  top: '33%',
-  transform: 'translate3d(-50%, -50%, 0)',
-
-  backgroundColor: '$white',
-  borderColor: '$slate7',
-  borderStyle: 'dashed',
-  borderWidth: 1,
-});
 
 export { DialogTitle };
 
@@ -61,12 +32,12 @@ export const Dialog = ({
   return (
     <DialogRoot modal={false} open={open} onOpenChange={onOpenChange}>
       <DialogPortal>
-        <DialogContent>
+        <DialogContent className={styles.content}>
           {children}
-          <DialogClose asChild>
-            <CloseButton aria-label="Close">
+          <DialogClose asChild className={styles.closeButtonWrapper}>
+            <button aria-label="Close" className={styles.closeButton}>
               <span aria-hidden>⨉</span>
-            </CloseButton>
+            </button>
           </DialogClose>
         </DialogContent>
       </DialogPortal>

@@ -1,0 +1,17 @@
+$breakpoint-min-widths: (
+  sm: 640px,
+  md: 768px,
+  lg: 1024px
+);
+
+@mixin min-width($breakpoint-name) {
+  @if map-has-key($map: $breakpoint-min-widths, $key: $breakpoint-name) {
+    $min-width: map-get($map: $breakpoint-min-widths, $key: $breakpoint-name);
+
+    @media (min-width: $min-width) {
+      @content;
+    }
+  } @else {
+    @warn 'Invalid breakpoint: #{$breakpoint-name}';
+  }
+}

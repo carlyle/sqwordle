@@ -1,6 +1,6 @@
 import { MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { styled } from '@app/ui/core';
+import styles from './ShareButton.module.scss';
 
 type Props = {
   text: string;
@@ -14,18 +14,6 @@ const buildTwitterUrl = ({ text, url }: Props): string => {
 
   return twitterUrl.toString();
 };
-
-const Link = styled('a', {
-  display: 'inline-block',
-  padding: 5,
-
-  borderStyle: 'dashed',
-  borderWidth: 1,
-  borderColor: '$indigo9',
-
-  color: '$indigo11',
-  textDecoration: 'none',
-});
 
 export const ShareButton = ({ text, url }: Props) => {
   const [canShare, setCanShare] = useState<boolean | undefined>(undefined);
@@ -62,13 +50,14 @@ export const ShareButton = ({ text, url }: Props) => {
   );
 
   return (
-    <Link
+    <a
+      className={styles.link}
       href={fallbackShareUrl}
       rel="noopener noreferrer"
       target="_blank"
       onClick={onClick}
     >
       Share
-    </Link>
+    </a>
   );
 };

@@ -1,7 +1,9 @@
 /** @type import('next').NextConfig */
-const config = {
+module.exports = {
+  i18n: {
+    defaultLocale: 'en',
+    locales: ['en'],
+  },
   reactStrictMode: true,
   trailingSlash: true,
 };
-
-module.exports = config;
