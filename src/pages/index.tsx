@@ -16,7 +16,8 @@ import { GuessWord } from '@app/ui/GuessWord';
 import { Keyboard } from '@app/ui/Keyboard';
 import { LoseDialog } from '@app/ui/LoseDialog';
 import { WinDialog } from '@app/ui/WinDialog';
-import { styled } from '@app/ui/core';
+
+import styles from './index.module.scss';
 
 type Props = {
   game: Game;
@@ -38,55 +39,6 @@ export const getStaticProps: GetStaticProps<Props> = async () => {
     revalidate: gameExpiresIn,
   };
 };
-
-const Disclaimer = styled('p', {
-  margin: '0 auto 0.5rem auto',
-  width: '80%',
-
-  color: '$slate11',
-  fontSize: '$xs',
-  lineHeight: 1.1,
-  textAlign: 'center',
-
-  '@md': {
-    fontSize: '$md',
-  },
-
-  '& a': {
-    color: '$indigo11',
-    textDecoration: 'none',
-  },
-});
-
-const GuessesContainer = styled('div', {
-  marginBottom: '2rem',
-});
-
-const Heading = styled('h1', {
-  margin: '1rem 0 0.25rem 0',
-
-  fontSize: '$lg',
-  textAlign: 'center',
-
-  '@md': {
-    fontSize: '$xl',
-  },
-});
-
-const PageContainer = styled('div', {
-  marginBottom: 220,
-});
-
-const Subhead = styled('h2', {
-  margin: '0 0 1rem 0',
-  fontSize: '$md',
-
-  textAlign: 'center',
-
-  '@md': {
-    fontSize: '$lg',
-  },
-});
 
 const HomePage = ({ game }: Props) => {
   const [previousStatus, setPreviousStatus] = useState<GameStatus>('playing');
@@ -141,11 +93,11 @@ const HomePage = ({ game }: Props) => {
         <meta property="og:url" content={ORIGIN} />
       </Head>
 
-      <PageContainer>
-        <Heading>SQWORDLE #{game.day}</Heading>
-        <Subhead>Who&apos;s that Pokémon?</Subhead>
+      <div className={styles.container}>
+        <h1 className={styles.heading}>SQWORDLE #{game.day}</h1>
+        <h2 className={styles.subhead}>Who&apos;s that Pokémon?</h2>
 
-        <GuessesContainer>
+        <div className={styles.guessesContainer}>
           {guesses.map((guess, index) => (
             <GuessWord
               key={`previous-${index}`}
@@ -169,9 +121,9 @@ const HomePage = ({ game }: Props) => {
               type="future"
             />
           ))}
-        </GuessesContainer>
+        </div>
 
-        <Disclaimer className="disclaimer">
+        <p className={styles.disclaimer}>
           A Pokémon-themed take on{' '}
           <a
             href="https://www.nytimes.com/games/wordle/index.html"
@@ -181,11 +133,9 @@ const HomePage = ({ game }: Props) => {
             Wordle
           </a>
           .
-        </Disclaimer>
-        <Disclaimer className="disclaimer">
-          Please don&apos;t sue me, Nintendo.
-        </Disclaimer>
-        <Disclaimer className="disclaimer">
+        </p>
+        <p className={styles.disclaimer}>Please don&apos;t sue me, Nintendo.</p>
+        <p className={styles.disclaimer}>
           <a
             href="https://github.com/carlyle/sqwordle"
             rel="noopener noreferrer"
@@ -193,7 +143,7 @@ const HomePage = ({ game }: Props) => {
           >
             View Source
           </a>
-        </Disclaimer>
+        </p>
 
         <Keyboard
           hints={keyboardHints}
@@ -218,7 +168,7 @@ const HomePage = ({ game }: Props) => {
             onClose={() => setVisibleDialog(null)}
           />
         )}
-      </PageContainer>
+      </div>
     </>
   );
 };
