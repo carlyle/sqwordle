@@ -112,11 +112,12 @@ const HomePage = ({ game }: Props) => {
   }, [status, previousStatus, setPreviousStatus, setVisibleDialog]);
 
   const shareImageUrl = new URL('/share.png', ORIGIN);
+  const todaysTitle = `SQWORDLE #${game.day}`;
 
   return (
     <>
       <Head>
-        <title>SQWORDLE #{game.day}</title>
+        <title>{todaysTitle}</title>
 
         <meta name="description" content="A Pokémon-themed take on Wordle" />
         <link rel="canonical" href={ORIGIN} />
