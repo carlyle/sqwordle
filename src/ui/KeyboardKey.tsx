@@ -1,8 +1,6 @@
-import classNames from 'classnames';
+import { cva } from 'class-variance-authority';
 
 import { LetterResult, RESULT_LABELS } from '@app/lib/game';
-
-import styles from './KeyboardKey.module.scss';
 
 type Props = {
   children: string;
@@ -11,11 +9,28 @@ type Props = {
   onClick?: () => void;
 };
 
+const keyClassName = cva(
+  'flex flex-grow flex-shrink basis-[5vw] items-center justify-center h-11 font-mono text-xs sm:text-sm md:text-base disabled:opacity-60',
+  {
+    defaultVariants: {
+      hint: LetterResult.Empty,
+    },
+    variants: {
+      hint: {
+        [LetterResult.Correct]: 'bg-green-400 text-green-950',
+        [LetterResult.Empty]: 'bg-slate-200 text-slate-950',
+        [LetterResult.Incorrect]: 'bg-slate-500 text-slate-50',
+        [LetterResult.Present]: 'bg-yellow-400 text-yellow-950',
+      } satisfies Record<LetterResult, string>,
+    },
+  }
+);
+
 export const KeyboardKey = ({ children, hint, letter, onClick }: Props) => (
   <button
     aria-details={RESULT_LABELS[hint]}
     aria-label={letter}
-    className={classNames(styles.key, styles[hint])}
+    className={keyClassName({ hint })}
     disabled={typeof onClick === 'undefined'}
     onClick={onClick}
   >

@@ -3,8 +3,6 @@ import { useEffect } from 'react';
 import { ALPHABET, LetterResult } from '@app/lib/game';
 import { KeyboardKey } from '@app/ui/KeyboardKey';
 
-import styles from './Keyboard.module.scss';
-
 const LETTERS = [
   ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
   ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
@@ -64,9 +62,12 @@ export const Keyboard = ({
   }, [onClickBackspace, onClickEnter, onClickLetter]);
 
   return (
-    <div className={styles.keyboard}>
+    <div className="fixed bottom-0 left-0 right-0 h-[200px] bg-slate-100 px-2.5 py-5">
       {LETTERS.map((row, index) => (
-        <div className={styles.row} key={String(index)}>
+        <div
+          className="mx-auto mb-[1vw] flex h-[45px] w-full flex-row flex-nowrap justify-between gap-x-[1vw] last:mb-0"
+          key={String(index)}
+        >
           {row.map((letter) => {
             if (letter === 'backspace') {
               return (

@@ -2,9 +2,9 @@ import { differenceInSeconds } from 'date-fns';
 
 import { useCurrentTime } from '@app/lib/time';
 
-type Props = {
+interface Props {
   endAt: number;
-};
+}
 
 const getIntervalString = ({
   from,
