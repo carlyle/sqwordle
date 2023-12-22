@@ -12,12 +12,11 @@ import {
   getGameForDay,
   useGame,
 } from '@app/lib/game';
+import { Disclaimer, DisclaimerLink } from '@app/ui/Disclaimer';
 import { GuessWord } from '@app/ui/GuessWord';
 import { Keyboard } from '@app/ui/Keyboard';
 import { LoseDialog } from '@app/ui/LoseDialog';
 import { WinDialog } from '@app/ui/WinDialog';
-
-import styles from './index.module.scss';
 
 type Props = {
   game: Game;
@@ -93,11 +92,15 @@ const HomePage = ({ game }: Props) => {
         <meta property="og:url" content={ORIGIN} />
       </Head>
 
-      <div className={styles.container}>
-        <h1 className={styles.heading}>SQWORDLE #{game.day}</h1>
-        <h2 className={styles.subhead}>Who&apos;s that Pokémon?</h2>
+      <main className="mx-auto mb-[220px] max-w-[680px]">
+        <h1 className="mb-1 mt-4 text-center font-mono text-2xl font-bold leading-[1.15] md:text-4xl">
+          SQWORDLE #{game.day}
+        </h1>
+        <h2 className="mb-4 text-center font-mono text-sm font-bold md:text-2xl">
+          Who&apos;s that Pokémon?
+        </h2>
 
-        <div className={styles.guessesContainer}>
+        <div className="mb-8">
           {guesses.map((guess, index) => (
             <GuessWord
               key={`previous-${index}`}
@@ -123,27 +126,27 @@ const HomePage = ({ game }: Props) => {
           ))}
         </div>
 
-        <p className={styles.disclaimer}>
+        <Disclaimer>
           A Pokémon-themed take on{' '}
-          <a
+          <DisclaimerLink
             href="https://www.nytimes.com/games/wordle/index.html"
             rel="noopener noreferrer"
             target="_blank"
           >
             Wordle
-          </a>
+          </DisclaimerLink>
           .
-        </p>
-        <p className={styles.disclaimer}>Please don&apos;t sue me, Nintendo.</p>
-        <p className={styles.disclaimer}>
-          <a
+        </Disclaimer>
+        <Disclaimer>Please don&apos;t sue me, Nintendo.</Disclaimer>
+        <Disclaimer>
+          <DisclaimerLink
             href="https://github.com/carlyle/sqwordle"
             rel="noopener noreferrer"
             target="_blank"
           >
             View Source
-          </a>
-        </p>
+          </DisclaimerLink>
+        </Disclaimer>
 
         <Keyboard
           hints={keyboardHints}
@@ -168,7 +171,7 @@ const HomePage = ({ game }: Props) => {
             onClose={() => setVisibleDialog(null)}
           />
         )}
-      </div>
+      </main>
     </>
   );
 };

@@ -1,14 +1,26 @@
-import classNames from 'classnames';
+import { cva } from 'class-variance-authority';
 
-import { GuessType, LetterResult, RESULT_LABELS } from '@app/lib/game';
+import { LetterResult, RESULT_LABELS, type GuessType } from '@app/lib/game';
 
-import styles from './GuessLetter.module.scss';
-
-type Props = {
+interface Props {
   letter: string;
   result: LetterResult;
   type: GuessType;
-};
+}
+
+const letterClassName = cva('h-8 flex-1 text-center uppercase leading-8', {
+  defaultVariants: {
+    result: LetterResult.Empty,
+  },
+  variants: {
+    result: {
+      [LetterResult.Correct]: 'bg-green-400 text-green-950',
+      [LetterResult.Empty]: 'bg-slate-200 text-slate-950',
+      [LetterResult.Incorrect]: 'bg-slate-500 text-slate-50',
+      [LetterResult.Present]: 'bg-yellow-400 text-yellow-950',
+    } satisfies Record<LetterResult, string>,
+  },
+});
 
 export const GuessLetter = ({ letter, result, type }: Props) => (
   <div
@@ -16,7 +28,7 @@ export const GuessLetter = ({ letter, result, type }: Props) => (
       type === 'previous' ? result !== LetterResult.Correct : undefined
     }
     aria-label={RESULT_LABELS[result] || undefined}
-    className={classNames(styles.letter, styles[result])}
+    className={letterClassName({ result })}
   >
     {letter}
   </div>

@@ -6,8 +6,6 @@ import { CountdownClock } from '@app/ui/CountdownClock';
 import { Dialog, DialogProps, DialogTitle } from '@app/ui/Dialog';
 import { ShareButton } from '@app/ui/ShareButton';
 
-import styles from './WinDialog.module.scss';
-
 export type Props = DialogProps & {
   game: Game;
   guesses: Guess[];
@@ -25,10 +23,10 @@ export const WinDialog = ({
       <DialogTitle>Success!</DialogTitle>
     </VisuallyHidden>
 
-    <p className={styles.text}>
+    <p className="mb-4 font-mono">
       Gotcha! {game.solution.toUpperCase()} was caught!
     </p>
-    <p className={styles.text}>
+    <p className="mb-4 font-mono">
       The next pokémon will appear in{' '}
       <CountdownClock endAt={nextGameStartsAt} />
     </p>

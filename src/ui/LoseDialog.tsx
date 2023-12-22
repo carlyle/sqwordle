@@ -6,8 +6,6 @@ import { CountdownClock } from '@app/ui/CountdownClock';
 import { Dialog, DialogProps, DialogTitle } from '@app/ui/Dialog';
 import { ShareButton } from '@app/ui/ShareButton';
 
-import styles from './LoseDialog.module.scss';
-
 type Props = DialogProps & {
   game: Game;
   guesses: Guess[];
@@ -25,8 +23,10 @@ export const LoseDialog = ({
       <DialogTitle>Failure</DialogTitle>
     </VisuallyHidden>
 
-    <p className={styles.text}>Aww! {game.solution.toUpperCase()} got away!</p>
-    <p className={styles.text}>
+    <p className="mb-4 font-mono">
+      Aww! {game.solution.toUpperCase()} got away!
+    </p>
+    <p className="mb-4 font-mono">
       The next pokémon will appear in{' '}
       <CountdownClock endAt={nextGameStartsAt} />
     </p>

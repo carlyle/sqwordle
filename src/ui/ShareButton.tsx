@@ -1,7 +1,5 @@
 import { MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
-import styles from './ShareButton.module.scss';
-
 type Props = {
   text: string;
   url: string;
@@ -51,7 +49,7 @@ export const ShareButton = ({ text, url }: Props) => {
 
   return (
     <a
-      className={styles.link}
+      className="inline-block border border-dashed border-indigo-600 p-1.5 font-mono leading-4 text-indigo-800"
       href={fallbackShareUrl}
       rel="noopener noreferrer"
       target="_blank"
