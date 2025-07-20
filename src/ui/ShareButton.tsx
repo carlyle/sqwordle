@@ -40,7 +40,10 @@ export const ShareButton = ({ text, url }: Props) => {
         event.preventDefault();
 
         navigator.share(shareData).catch((error) => {
-          console.error(error.stack);
+          if (error instanceof Error && error.name === 'AbortError') {
+            // the share was cancelled
+            return;
+          }
 
           window.open(fallbackShareUrl);
         });

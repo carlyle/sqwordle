@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 
-import { ORIGIN } from '@app/config/public';
 import { type Game, getDay, getGameForDay } from '@app/lib/game';
 import { GamePage } from '@app/ui/GamePage';
 
@@ -12,24 +11,24 @@ const getGameForToday = async (): Promise<Game> => {
   return getGameForDay({ day: getDay(), words: WORDS });
 };
 
-const shareImageUrl = new URL('/share.png', ORIGIN);
+const shareImage = {
+  height: 359,
+  width: 856,
+  url: '/share.png',
+};
 export const generateMetadata = async (): Promise<Metadata> => {
   const game = await getGameForToday();
 
-  const description = 'A Pokémon-themed take on Wordle';
-  const title = `SQWORDLE #${game.day}`;
-
   return {
-    alternates: { canonical: ORIGIN },
-    description,
-    icons: ['/favicon.ico'],
-    title,
-    openGraph: { description, images: [shareImageUrl], title, type: 'website' },
+    openGraph: {
+      images: [shareImage],
+      siteName: 'SQWORDLE',
+      type: 'website',
+      url: '/',
+    },
+    title: `SQWORDLE #${game.day}`,
     twitter: {
       card: 'summary_large_image',
-      description,
-      images: [shareImageUrl],
-      title,
     },
   } satisfies Metadata;
 };
