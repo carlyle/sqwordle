@@ -1,9 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
 @layer base {
   body {
-    @apply bg-slate-50;
+    background-color: var(--bg-slate-50);
   }
 }

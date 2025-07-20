@@ -1,3 +1,5 @@
+'use client';
+
 import { differenceInSeconds } from 'date-fns';
 
 import { useCurrentTime } from '@app/lib/time';

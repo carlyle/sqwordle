@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Dialog as DialogRoot,
   DialogClose,
@@ -30,9 +32,9 @@ export const Dialog = ({
   return (
     <DialogRoot modal={false} open={open} onOpenChange={onOpenChange}>
       <DialogPortal>
-        <DialogContent className="fixed left-1/2 top-1/3 min-w-[60%] -translate-x-1/2 -translate-y-1/2 border border-dashed border-slate-300 bg-white p-5 pt-10">
+        <DialogContent className="fixed top-1/3 left-1/2 min-w-[60%] -translate-x-1/2 -translate-y-1/2 border border-dashed border-slate-300 bg-white p-5 pt-10">
           {children}
-          <DialogClose asChild className="absolute right-2.5 top-2.5">
+          <DialogClose asChild className="absolute top-2.5 right-2.5">
             <button aria-label="Close" className="px-1.5 py-px">
               <span aria-hidden>⨉</span>
             </button>
