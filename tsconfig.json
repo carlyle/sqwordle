@@ -16,10 +16,18 @@
     "moduleResolution": "node",
     "noEmit": true,
     "paths": {
-      "@app/config/*": ["src/config/*"],
-      "@app/lib/*": ["src/lib/*"],
-      "@app/pages/*": ["src/pages/*"],
-      "@app/ui/*": ["src/ui/*"]
+      "@app/config/*": [
+        "src/config/*"
+      ],
+      "@app/lib/*": [
+        "src/lib/*"
+      ],
+      "@app/pages/*": [
+        "src/pages/*"
+      ],
+      "@app/ui/*": [
+        "src/ui/*"
+      ]
     },
     "resolveJsonModule": true,
     "skipLibCheck": true,
