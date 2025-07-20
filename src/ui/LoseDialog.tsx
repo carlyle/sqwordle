@@ -4,13 +4,13 @@ import { ORIGIN } from '@app/config/public';
 import { formatShareText, Game, Guess } from '@app/lib/game';
 import { CountdownClock } from '@app/ui/CountdownClock';
 import { Dialog, DialogProps, DialogTitle } from '@app/ui/Dialog';
-import { ShareButton } from '@app/ui/ShareButton';
+import { ShareBar } from '@app/ui/ShareBar';
 
-type Props = DialogProps & {
+interface Props extends DialogProps {
   game: Game;
   guesses: Guess[];
   nextGameStartsAt: number;
-};
+}
 
 export const LoseDialog = ({
   game,
@@ -23,14 +23,14 @@ export const LoseDialog = ({
       <DialogTitle>Failure</DialogTitle>
     </VisuallyHidden>
 
-    <p className="mb-4 font-mono">
-      Aww! {game.solution.toUpperCase()} got away!
-    </p>
-    <p className="mb-4 font-mono">
-      The next pokémon will appear in{' '}
-      <CountdownClock endAt={nextGameStartsAt} />
-    </p>
+    <div className="flex flex-col items-start gap-4">
+      <p className="font-mono">Aww! {game.solution.toUpperCase()} got away!</p>
+      <p className="font-mono">
+        The next pokémon will appear in{' '}
+        <CountdownClock endAt={nextGameStartsAt} />
+      </p>
 
-    <ShareButton text={formatShareText({ game, guesses })} url={ORIGIN} />
+      <ShareBar text={formatShareText({ game, guesses })} url={ORIGIN} />
+    </div>
   </Dialog>
 );
