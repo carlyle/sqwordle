@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect } from 'react';
 
 import { ALPHABET, LetterResult } from '@app/lib/game';
@@ -62,7 +64,7 @@ export const Keyboard = ({
   }, [onClickBackspace, onClickEnter, onClickLetter]);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-[200px] bg-slate-100 px-2.5 py-5">
+    <div className="fixed right-0 bottom-0 left-0 h-[200px] bg-slate-100 px-2.5 py-5">
       {LETTERS.map((row, index) => (
         <div
           className="mx-auto mb-[1vw] flex h-[45px] w-full flex-row flex-nowrap justify-between gap-x-[1vw] last:mb-0"

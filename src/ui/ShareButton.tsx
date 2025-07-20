@@ -1,3 +1,5 @@
+'use client';
+
 import { MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 type Props = {
