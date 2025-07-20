@@ -10,11 +10,9 @@ type Props = {
 };
 
 const keyClassName = cva(
-  'flex flex-grow flex-shrink basis-[5vw] items-center justify-center h-11 font-mono text-xs sm:text-sm md:text-base disabled:opacity-60',
+  'flex grow shrink basis-[5vw] items-center justify-center h-11 font-mono text-xs sm:text-sm md:text-base disabled:opacity-60',
   {
-    defaultVariants: {
-      hint: LetterResult.Empty,
-    },
+    defaultVariants: { hint: LetterResult.Empty },
     variants: {
       hint: {
         [LetterResult.Correct]: 'bg-green-400 text-green-950',
