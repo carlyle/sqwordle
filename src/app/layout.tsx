@@ -5,8 +5,10 @@ import '../theme/global.css';
 
 const Layout = ({ children }: { children: ReactNode }) => (
   <html lang="en-US">
-    <body className="bg-slate-50">{children}</body>
-    <Analytics />
+    <body className="bg-slate-50">
+      {children}
+      <Analytics />
+    </body>
   </html>
 );
 
