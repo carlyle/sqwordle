@@ -2,7 +2,7 @@
   "name": "sqwordle",
   "license": "GPL-3.0-or-later",
   "engines": {
-    "node": "22.x"
+    "node": "24.x"
   },
   "scripts": {
     "build": "next build",
