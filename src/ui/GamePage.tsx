@@ -34,14 +34,14 @@ export const GamePage = ({ game }: { game: Game }) => {
   }, [status, previousStatus, setPreviousStatus, setVisibleDialog]);
 
   return (
-    <main className="flex flex-col mx-auto mb-[220px] max-w-[680px]">
+    <main className="mx-auto mb-[220px] flex max-w-[680px] flex-col">
       <h1 className="mt-4 mb-1 text-center font-mono text-2xl leading-[1.15] font-bold md:text-4xl">
-        SQWORDLE #{game.day}
+        SQWORDLE #{game.number}
       </h1>
       <h2 className="mb-2 text-center font-mono text-sm font-bold md:text-2xl">
         Who&apos;s that Pokémon?
       </h2>
-      <p className="mb-4 px-1 self-center font-mono font-bold text-xs bg-yellow-300 md:text-md">
+      <p className="md:text-md mb-4 self-center bg-yellow-300 px-1 font-mono text-xs font-bold">
         Now with Generation <span aria-label="9">IX</span>!
       </p>
 
@@ -104,7 +104,6 @@ export const GamePage = ({ game }: { game: Game }) => {
         <LoseDialog
           game={game}
           guesses={guesses}
-          nextGameStartsAt={game.endsAt}
           onClose={() => setVisibleDialog(null)}
         />
       )}
@@ -112,7 +111,6 @@ export const GamePage = ({ game }: { game: Game }) => {
         <WinDialog
           game={game}
           guesses={guesses}
-          nextGameStartsAt={game.endsAt}
           onClose={() => setVisibleDialog(null)}
         />
       )}

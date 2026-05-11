@@ -1,12 +1,27 @@
 'use client';
 
-import { differenceInSeconds } from 'date-fns';
+import { Temporal } from '@js-temporal/polyfill';
+import { useMemo } from 'react';
 
+import { TIMEZONE } from '@app/config/public';
+import type { Game, GameDate } from '@app/lib/game';
 import { useCurrentTime } from '@app/lib/time';
 
 interface Props {
-  endAt: number;
+  game: Game;
 }
+
+const getEndTime = ({ day, month, year }: GameDate): number =>
+  Temporal.ZonedDateTime.from({
+    timeZone: TIMEZONE,
+    year,
+    month,
+    day,
+    hour: 23,
+    minute: 59,
+    second: 59,
+    millisecond: 999,
+  }).epochMilliseconds;
 
 const getIntervalString = ({
   from,
@@ -15,10 +30,7 @@ const getIntervalString = ({
   from: number;
   to: number;
 }): string => {
-  const totalSeconds = Math.max(
-    0,
-    differenceInSeconds(to, from, { roundingMethod: 'floor' })
-  );
+  const totalSeconds = Math.max(0, Math.floor((to - from) / 1000));
 
   const hours = Math.floor(totalSeconds / 60 / 60);
   const minutes = Math.floor((totalSeconds - hours * 60 * 60) / 60);
@@ -31,13 +43,14 @@ const getIntervalString = ({
   ].join(':');
 };
 
-export const CountdownClock = ({ endAt }: Props) => {
+export const CountdownClock = ({ game }: Props) => {
   const currentTime = useCurrentTime();
+  const endTime = useMemo(() => getEndTime(game.date), [game.date]);
 
   return (
     <span>
       {currentTime
-        ? getIntervalString({ from: currentTime, to: endAt })
+        ? getIntervalString({ from: currentTime, to: endTime })
         : '--:--:--'}
     </span>
   );

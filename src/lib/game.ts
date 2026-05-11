@@ -1,21 +1,21 @@
-import { differenceInDays } from 'date-fns';
-import { fromZonedTime } from 'date-fns-tz';
-
+import { Temporal } from '@js-temporal/polyfill';
 import { START_DATE, TIMEZONE } from '@app/config/public';
 import { times } from '@app/lib/collections';
 import { usePersistentStorage } from '@app/lib/storage';
 
 export type Game = {
-  day: number;
-  endsAt: number;
+  date: GameDate;
   maxAttempts: number;
+  number: number;
   solution: string;
   validWords: string[];
 };
 
-export type Guess = {
-  results: LetterResult[];
-  word: string;
+export type GameDate = {
+  day: number;
+  /** 1-indexed, like Temporal */
+  month: number;
+  year: number;
 };
 
 export type GameState = {
@@ -25,6 +25,11 @@ export type GameState = {
 };
 
 export type GameStatus = 'loading' | 'lost' | 'playing' | 'won';
+
+export type Guess = {
+  results: LetterResult[];
+  word: string;
+};
 
 export type GuessType = 'current' | 'future' | 'previous';
 
@@ -175,7 +180,7 @@ export const formatShareText = ({
   const guessCount = lastGuess.word === game.solution ? guesses.length : 'X';
 
   return [
-    `SQWORDLE #${game.day} ${guessCount}/${game.maxAttempts}`,
+    `SQWORDLE #${game.number} ${guessCount}/${game.maxAttempts}`,
     '',
     ...guesses.map(({ results }) =>
       results.map((result) => RESULT_EMOJI[result]).join('')
@@ -183,54 +188,49 @@ export const formatShareText = ({
   ].join('\n');
 };
 
-const getDateAsDateString = (date: Date): string =>
-  new Intl.DateTimeFormat('en-CA', {
-    day: '2-digit',
-    month: '2-digit',
-    timeZone: TIMEZONE,
-    year: 'numeric',
-  }).format(date);
+const getDifferenceInDays = (to: GameDate, from: GameDate): number => {
+  const toDate = Temporal.PlainDate.from({
+    year: to.year,
+    month: to.month,
+    day: to.day,
+  });
+  const fromDate = Temporal.PlainDate.from({
+    year: from.year,
+    month: from.month,
+    day: from.day,
+  });
 
-const getDateStringForDay = (dayNumber: number): string => {
-  const [year, month, day] = START_DATE.split('-').map(Number);
-  const date = new Date(Date.UTC(year, month - 1, day + dayNumber));
-
-  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+  return toDate.since(fromDate, { largestUnit: 'day' }).days;
 };
 
-export const getDay = (): number => {
-  const today = fromZonedTime(getDateAsDateString(new Date()), TIMEZONE);
-  const startOfGame = fromZonedTime(START_DATE, TIMEZONE);
+export const getGameDate = (): GameDate => {
+  const now = Temporal.Now.plainDateISO(TIMEZONE);
 
-  const daysSinceStart = differenceInDays(today, startOfGame);
-  if (daysSinceStart < 0) {
-    throw new Error(
-      `Unable to determine the current day number, the startDate is in the future`
-    );
-  }
-
-  return daysSinceStart + 1;
+  return { day: now.day, month: now.month, year: now.year };
 };
 
-export const getGameForDay = ({
-  day,
+export const getGameForDate = ({
+  date,
   words,
 }: {
-  day: number;
+  date: GameDate;
   words: string[];
 }): Game => {
-  const endsAt = fromZonedTime(getDateStringForDay(day), TIMEZONE).getTime();
-  const solution = words[(day - 1) % words.length];
+  const number = getGameNumber(date) + 1;
+  const solution = words[(number - 1) % words.length];
   const validWords = words.filter((word) => word.length === solution.length);
 
   return {
-    day,
-    endsAt,
+    date,
     maxAttempts: 6,
+    number,
     solution,
     validWords,
   };
 };
+
+export const getGameNumber = (gameDate: GameDate): number =>
+  getDifferenceInDays(gameDate, parseGameDate(START_DATE));
 
 export const isBetterResult = (
   result: LetterResult,
@@ -243,6 +243,20 @@ const isGameState = (value: unknown): value is GameState =>
   value !== null &&
   typeof (<GameState>value).currentGuess === 'string';
 
+const GAME_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+export const parseGameDate = (dateString: string): GameDate => {
+  const matches = dateString.match(GAME_DATE_PATTERN);
+  if (!matches) {
+    throw new Error(`Unable to parse ${dateString} as a GameDate`);
+  }
+
+  return {
+    day: Number(matches[3]),
+    month: Number(matches[2]), // months are 1-indexed
+    year: Number(matches[1]),
+  };
+};
+
 export const parseGameState = (serializedState: string): GameState => {
   const gameState = JSON.parse(serializedState);
   if (!isGameState(gameState)) {
@@ -252,9 +266,14 @@ export const parseGameState = (serializedState: string): GameState => {
   return gameState;
 };
 
-export const useGame = ({ day, maxAttempts, solution, validWords }: Game) => {
+export const useGame = ({
+  maxAttempts,
+  number,
+  solution,
+  validWords,
+}: Game) => {
   const gameState = usePersistentStorage<GameState>(
-    `days[${day}]`,
+    `days[${number}]`,
     DEFAULT_GAME_STATE,
     {
       deserialize: parseGameState,

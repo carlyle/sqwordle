@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 
-import { type Game, getDay, getGameForDay } from '@app/lib/game';
+import { type Game, getGameDate, getGameForDate } from '@app/lib/game';
 import { GamePage } from '@app/ui/GamePage';
 
 export const revalidate = 60;
@@ -8,7 +8,7 @@ export const revalidate = 60;
 const getGameForToday = async (): Promise<Game> => {
   const { WORDS } = await import('@app/config/private');
 
-  return getGameForDay({ day: getDay(), words: WORDS });
+  return getGameForDate({ date: getGameDate(), words: WORDS });
 };
 
 const shareImage = {
@@ -26,7 +26,7 @@ export const generateMetadata = async (): Promise<Metadata> => {
       type: 'website',
       url: '/',
     },
-    title: `SQWORDLE #${game.day}`,
+    title: `SQWORDLE #${game.number}`,
     twitter: {
       card: 'summary_large_image',
     },
