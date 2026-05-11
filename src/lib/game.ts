@@ -1,6 +1,7 @@
-import { addDays, differenceInDays } from 'date-fns';
+import { differenceInDays } from 'date-fns';
+import { fromZonedTime } from 'date-fns-tz';
 
-import { START_DATE } from '@app/config/public';
+import { START_DATE, TIMEZONE } from '@app/config/public';
 import { times } from '@app/lib/collections';
 import { usePersistentStorage } from '@app/lib/storage';
 
@@ -182,12 +183,26 @@ export const formatShareText = ({
   ].join('\n');
 };
 
-export const getDay = ({
-  startDate = START_DATE,
-}: {
-  startDate?: Date;
-} = {}): number => {
-  const daysSinceStart = differenceInDays(Date.now(), startDate);
+const getDateAsDateString = (date: Date): string =>
+  new Intl.DateTimeFormat('en-CA', {
+    day: '2-digit',
+    month: '2-digit',
+    timeZone: TIMEZONE,
+    year: 'numeric',
+  }).format(date);
+
+const getDateStringForDay = (dayNumber: number): string => {
+  const [year, month, day] = START_DATE.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day + dayNumber));
+
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+};
+
+export const getDay = (): number => {
+  const today = fromZonedTime(getDateAsDateString(new Date()), TIMEZONE);
+  const startOfGame = fromZonedTime(START_DATE, TIMEZONE);
+
+  const daysSinceStart = differenceInDays(today, startOfGame);
   if (daysSinceStart < 0) {
     throw new Error(
       `Unable to determine the current day number, the startDate is in the future`
@@ -199,14 +214,12 @@ export const getDay = ({
 
 export const getGameForDay = ({
   day,
-  startDate = START_DATE,
   words,
 }: {
   day: number;
-  startDate?: Date;
   words: string[];
 }): Game => {
-  const endsAt = addDays(startDate, day).getTime();
+  const endsAt = fromZonedTime(getDateStringForDay(day), TIMEZONE).getTime();
   const solution = words[(day - 1) % words.length];
   const validWords = words.filter((word) => word.length === solution.length);
 
