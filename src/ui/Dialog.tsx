@@ -4,6 +4,7 @@ import {
   Dialog as DialogRoot,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogPortal,
   DialogTitle,
 } from '@radix-ui/react-dialog';
@@ -13,7 +14,7 @@ export interface DialogProps {
   onClose: () => void;
 }
 
-export { DialogTitle };
+export { DialogDescription, DialogTitle };
 
 export const Dialog = ({
   children,

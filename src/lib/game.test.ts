@@ -3,7 +3,7 @@ import {
   countLetters,
   evaluateGuess,
   formatShareText,
-  getGameForDay,
+  getGameForDate,
   isBetterResult,
   LetterResult,
 } from '@app/lib/game';
@@ -187,9 +187,9 @@ describe('formatShareText', () => {
     expect(
       formatShareText({
         game: {
-          day: 1,
-          endsAt: NaN, // unused
+          date: { year: 2022, month: 1, day: 10 },
           maxAttempts: 5,
+          number: 1,
           solution: 'solution',
           validWords: [], // unused
         },
@@ -214,9 +214,9 @@ describe('formatShareText', () => {
     expect(
       formatShareText({
         game: {
-          day: 123,
-          endsAt: NaN, // unused
+          date: { year: 2022, month: 5, day: 13 },
           maxAttempts: 10,
+          number: 123,
           solution: 'word',
           validWords: [], // unused
         },
@@ -266,29 +266,27 @@ describe('formatShareText', () => {
 describe('getGameForDay', () => {
   it("returns the requested day's game", () => {
     expect(
-      getGameForDay({
-        day: 1,
-        startDate: new Date(2022, 0, 1),
+      getGameForDate({
+        date: { year: 2022, month: 1, day: 10 },
         words: ['first', 'second', 'third'],
       })
     ).toEqual({
-      day: 1,
-      endsAt: new Date(2022, 0, 2).getTime(),
+      date: { year: 2022, month: 1, day: 10 },
       maxAttempts: 6,
+      number: 1,
       solution: 'first',
       validWords: ['first', 'third'],
     });
 
     expect(
-      getGameForDay({
-        day: 2,
-        startDate: new Date(2022, 0, 1),
+      getGameForDate({
+        date: { year: 2022, month: 1, day: 11 },
         words: ['first', 'second', 'third'],
       })
     ).toEqual({
-      day: 2,
-      endsAt: new Date(2022, 0, 3).getTime(),
+      date: { year: 2022, month: 1, day: 11 },
       maxAttempts: 6,
+      number: 2,
       solution: 'second',
       validWords: ['second'],
     });
@@ -296,17 +294,15 @@ describe('getGameForDay', () => {
 
   it("returns a list of valid words with the same length as the day's solution", () => {
     expect(
-      getGameForDay({
-        day: 1,
-        startDate: new Date(2022, 0, 1),
+      getGameForDate({
+        date: { year: 2022, month: 1, day: 10 },
         words: ['first', 'second', 'third'],
       }).validWords
     ).toEqual(['first', 'third']);
 
     expect(
-      getGameForDay({
-        day: 2,
-        startDate: new Date(2022, 0, 1),
+      getGameForDate({
+        date: { year: 2022, month: 1, day: 11 },
         words: ['first', 'second', 'third'],
       }).validWords
     ).toEqual(['second']);
@@ -314,14 +310,13 @@ describe('getGameForDay', () => {
 
   it('wraps around to the start of the list when the number of days exceeds the number of words', () => {
     expect(
-      getGameForDay({
-        day: 4,
-        startDate: new Date(2022, 0, 1),
+      getGameForDate({
+        date: { year: 2022, month: 1, day: 13 },
         words: ['first', 'second', 'third'],
       })
     ).toEqual({
-      day: 4,
-      endsAt: new Date(2022, 0, 5).getTime(),
+      date: { year: 2022, month: 1, day: 13 },
+      number: 4,
       maxAttempts: 6,
       solution: 'first',
       validWords: ['first', 'third'],

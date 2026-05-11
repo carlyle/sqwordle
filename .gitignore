@@ -2,6 +2,7 @@
 /.swc
 /.vercel
 /.vscode
+/.yarn
 /node_modules
 
 .DS_Store

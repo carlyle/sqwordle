@@ -1,5 +1,3 @@
-import { fromZonedTime } from 'date-fns-tz';
-
 ////
 /// Server settings
 //
@@ -22,4 +20,4 @@ const startDateString = process.env.NEXT_PUBLIC_START_DATE;
 if (typeof startDateString !== 'string') {
   throw new Error('Missing NEXT_PUBLIC_START_DATE');
 }
-export const START_DATE = fromZonedTime(startDateString, TIMEZONE);
+export const START_DATE = startDateString;
