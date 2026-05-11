@@ -14,6 +14,8 @@ export const GamePage = ({ game }: { game: Game }) => {
   const [previousStatus, setPreviousStatus] = useState<GameStatus>('playing');
   const [visibleDialog, setVisibleDialog] = useState<GameStatus | null>(null);
 
+  console.info(game);
+
   const {
     attemptsRemaining,
     currentGuess,
@@ -34,13 +36,16 @@ export const GamePage = ({ game }: { game: Game }) => {
   }, [status, previousStatus, setPreviousStatus, setVisibleDialog]);
 
   return (
-    <main className="mx-auto mb-[220px] max-w-[680px]">
+    <main className="flex flex-col mx-auto mb-[220px] max-w-[680px]">
       <h1 className="mt-4 mb-1 text-center font-mono text-2xl leading-[1.15] font-bold md:text-4xl">
         SQWORDLE #{game.day}
       </h1>
-      <h2 className="mb-4 text-center font-mono text-sm font-bold md:text-2xl">
+      <h2 className="mb-2 text-center font-mono text-sm font-bold md:text-2xl">
         Who&apos;s that Pokémon?
       </h2>
+      <p className="mb-4 px-1 self-center font-mono font-bold text-xs bg-yellow-300 md:text-md">
+        Now with Generation <span aria-label="9">IX</span>!
+      </p>
 
       <div className="mb-8">
         {guesses.map((guess, index) => (
