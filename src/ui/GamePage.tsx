@@ -14,8 +14,6 @@ export const GamePage = ({ game }: { game: Game }) => {
   const [previousStatus, setPreviousStatus] = useState<GameStatus>('playing');
   const [visibleDialog, setVisibleDialog] = useState<GameStatus | null>(null);
 
-  console.info(game);
-
   const {
     attemptsRemaining,
     currentGuess,
